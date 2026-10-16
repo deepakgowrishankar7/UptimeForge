@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="/assets/logo.png">
+  <title>System Status — UptimeForge</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-hover: #1D4ED8;
+      --bg-surface: #FFFFFF;
+      --bg-base: #F8FAFC;
+      --border-subtle: #E2E8F0;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --text-dim: #94A3B8;
+      --color-up: #10B981;
+      --color-up-bg: #ECFDF5;
+      --color-degraded: #F59E0B;
+      --color-degraded-bg: #FFFBEB;
+      --color-down: #EF4444;
+      --color-down-bg: #FEF2F2;
+    }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Top Branding Navigation Bar */
+    .status-navbar {
+      background-color: #FFFFFF;
+      border-bottom: 1px solid var(--border-subtle);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+    }
+    .status-navbar-inner {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 14px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .status-brand,
+    .status-brand:hover,
+    .status-brand:focus,
+    .status-brand:active,
+    .status-brand *,
+    .status-brand:hover * {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none !important;
+      outline: none;
+    }
+    .status-brand img {
+      width: 32px;
+      height: 32px;
+      object-fit: contain;
+    }
+    .status-brand-name {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.4px;
+      color: #0F172A;
+      text-decoration: none !important;
+    }
+    .status-brand:hover .status-brand-name {
+      color: #0F172A;
+      text-decoration: none !important;
+    }
+    .status-brand-badge {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      background-color: #EFF6FF;
+      color: #2563EB;
+      padding: 3px 8px;
+      border-radius: 6px;
+      text-decoration: none !important;
+    }
+    .status-brand:hover .status-brand-badge {
+      background-color: #DBEAFE;
+      color: #1D4ED8;
+      text-decoration: none !important;
+    }
+    .status-nav-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .live-pulse-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #059669;
+      background-color: #ECFDF5;
+      border: 1px solid #A7F3D0;
+      padding: 5px 12px;
+      border-radius: 999px;
+    }
+    .pulse-dot-green {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background-color: #10B981;
+      box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+      animation: statusPulse 2s infinite;
+    }
+    @keyframes statusPulse {
+      0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+      70% { box-shadow: 0 0 0 7px rgba(16, 185, 129, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+
+    /* Main Container */
+    .status-page-wrapper {
+      max-width: 1080px;
+      margin: 40px auto 80px auto;
+      padding: 0 24px;
+    }
+
+    /* Hero Section */
+    .status-hero {
+      margin-bottom: 32px;
+    }
+    .sp-title {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -0.6px;
+      color: #0F172A;
+      margin: 0 0 10px 0;
+    }
+    .sp-desc {
+      color: var(--text-muted);
+      font-size: 15.5px;
+      line-height: 1.5;
+      margin: 0;
+      max-width: 700px;
+    }
+
+    /* Big Overall Status Banner */
+    .overall-banner {
+      padding: 24px 28px;
+      border-radius: 14px;
+      margin-bottom: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.25s ease;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+    }
+    .banner-operational {
+      background: linear-gradient(135deg, #ECFDF5 0%, #F0FDF4 100%);
+      border: 1.5px solid #A7F3D0;
+      color: #065F46;
+    }
+    .banner-degraded {
+      background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%);
+      border: 1.5px solid #FDE68A;
+      color: #92400E;
+    }
+    .banner-outage {
+      background: linear-gradient(135deg, #FEF2F2 0%, #FEE2E2 100%);
+      border: 1.5px solid #FECACA;
+      color: #991B1B;
+    }
+    .banner-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .banner-icon-disc {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: #FFFFFF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+    }
+    .banner-status-headline {
+      font-size: 19px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+    .banner-status-sub {
+      font-size: 13px;
+      opacity: 0.85;
+      margin-top: 2px;
+      font-weight: 500;
+    }
+    .banner-right {
+      text-align: right;
+    }
+    .banner-uptime-pct {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.4px;
+    }
+    .banner-uptime-label {
+      font-size: 12px;
+      opacity: 0.8;
+      font-weight: 600;
+    }
+
+    /* 4-KPI Row */
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    .kpi-card {
+      background-color: #FFFFFF;
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 18px 20px;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .kpi-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+    }
+    .kpi-label {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .kpi-val {
+      font-size: 22px;
+      font-weight: 800;
+      color: #0F172A;
+      letter-spacing: -0.4px;
+    }
+    .kpi-sub {
+      font-size: 12px;
+      color: var(--text-dim);
+      margin-top: 4px;
+      font-weight: 500;
+    }
+
+    /* Content Cards */
+    .sp-card {
+      background-color: #FFFFFF;
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      box-shadow: 0 1px 4px rgba(15, 23, 42, 0.04);
+      margin-bottom: 32px;
+      overflow: hidden;
+    }
+    .sp-card-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #FFFFFF;
+    }
+    .sp-card-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: #0F172A;
+      margin: 0;
+    }
+
+    /* Component Service Rows */
+    .service-row-item {
+      padding: 20px 24px;
+      border-bottom: 1px solid #F1F5F9;
+      transition: background-color 0.15s ease;
+    }
+    .service-row-item:last-child {
+      border-bottom: none;
+    }
+    .service-row-item:hover {
+      background-color: #F8FAFC;
+    }
+    .service-meta-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .service-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .service-name {
+      font-size: 15.5px;
+      font-weight: 700;
+      color: #0F172A;
+    }
+    .service-pill-type {
+      font-size: 11px;
+      font-weight: 600;
+      background-color: #F1F5F9;
+      color: #475569;
+      padding: 2px 8px;
+      border-radius: 4px;
+      border: 1px solid #E2E8F0;
+    }
+    .service-metrics-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .latency-pill {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: #475569;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background-color: #F8FAFC;
+      border: 1px solid #E2E8F0;
+      padding: 3px 10px;
+      border-radius: 6px;
+    }
+    .status-badge-custom {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 6px;
+    }
+    .status-badge-up {
+      background-color: #ECFDF5;
+      color: #059669;
+      border: 1px solid #A7F3D0;
+    }
+    .status-badge-down {
+      background-color: #FEF2F2;
+      color: #DC2626;
+      border: 1px solid #FECACA;
+    }
+
+    /* 30-Day Availability Bar Visual */
+    .uptime-bar-container {
+      margin-top: 8px;
+    }
+    .uptime-bar-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--text-dim);
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+    .uptime-ticks {
+      display: flex;
+      gap: 3px;
+      align-items: center;
+      height: 24px;
+    }
+    .uptime-tick {
+      flex: 1;
+      height: 20px;
+      background-color: #10B981;
+      border-radius: 3px;
+      transition: transform 0.15s ease, opacity 0.15s ease;
+      cursor: pointer;
+      position: relative;
+    }
+    .uptime-tick:hover {
+      transform: scaleY(1.25);
+      opacity: 0.85;
+    }
+    .uptime-tick.tick-degraded {
+      background-color: #F59E0B;
+    }
+    .uptime-tick.tick-down {
+      background-color: #EF4444;
+    }
+
+    /* Incident Timeline */
+    .incident-item {
+      padding: 18px 24px;
+      border-bottom: 1px solid #F1F5F9;
+    }
+    .incident-item:last-child {
+      border-bottom: none;
+    }
+    .incident-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    .incident-title-text {
+      font-size: 15px;
+      font-weight: 700;
+      color: #0F172A;
+    }
+    .incident-tag-resolved {
+      font-size: 11px;
+      font-weight: 700;
+      background-color: #ECFDF5;
+      color: #059669;
+      border: 1px solid #A7F3D0;
+      padding: 3px 8px;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .incident-sub-info {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* Modal for Subscribe */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .modal-box {
+      background: #FFFFFF;
+      border-radius: 14px;
+      width: 100%;
+      max-width: 460px;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      transform: translateY(12px);
+      transition: transform 0.2s ease;
+    }
+    .modal-overlay.active .modal-box {
+      transform: translateY(0);
+    }
+
+    @media (max-width: 768px) {
+      .status-navbar-inner {
+        flex-direction: column;
+        gap: 12px;
+        align-items: flex-start;
+      }
+      .overall-banner {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+      }
+      .banner-right {
+        text-align: left;
+      }
+      .service-meta-line {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <nav class="status-navbar">
+    <div class="status-navbar-inner">
+      <a href="/index.html" class="status-brand">
+        <img src="/assets/logo.png" alt="UptimeForge Logo">
+        <div>
+          <span class="status-brand-name">UptimeForge</span>
+        </div>
+        <span class="status-brand-badge">Status</span>
+      </a>
+
+      <div class="status-nav-right">
+        <div class="live-pulse-chip">
+          <span class="pulse-dot-green"></span>
+          <span>Live 30s Telemetry</span>
+        </div>
+        <button id="open-subscribe-btn" class="btn btn-primary btn-sm" style="font-size:12.5px; padding:7px 16px; font-weight:600;">
+          Get Alerts
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="status-page-wrapper">
+    <!-- Hero Header -->
+    <header class="status-hero">
+      <h1 class="sp-title" id="page-title">UptimeForge Platform Status</h1>
+      <p class="sp-desc" id="page-desc">Real-time service health, uptime, and incident updates across global edge probes.</p>
+    </header>
+
+    <!-- Overall Status Banner -->
+    <div id="overall-banner" class="overall-banner banner-operational">
+      <div class="banner-left">
+        <div class="banner-icon-disc" id="banner-icon-disc">
+          <svg viewBox="0 0 24 24" width="22" height="22" stroke="#059669" stroke-width="2.5" fill="none">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+        <div>
+          <div class="banner-status-headline" id="banner-text">All Systems Operational</div>
+          <div class="banner-status-sub" id="banner-subtext">All monitored edge endpoints are responding within normal thresholds.</div>
+        </div>
+      </div>
+      <div class="banner-right">
+        <div class="banner-uptime-pct" id="banner-uptime">99.9%</div>
+        <div class="banner-uptime-label">24h Availability</div>
+      </div>
+    </div>
+
+    <!-- Active Announcements Container -->
+    <div id="announcements-container"></div>
+
+    <!-- 4-KPI Row -->
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-label">
+          <svg viewBox="0 0 24 24" width="14" height="14" stroke="#2563EB" stroke-width="2" fill="none"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          24h Availability
+        </div>
+        <div class="kpi-val" id="kpi-avail" style="color:#10B981;">99.98%</div>
+        <div class="kpi-sub">Across all endpoints</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-label">
+          <svg viewBox="0 0 24 24" width="14" height="14" stroke="#2563EB" stroke-width="2" fill="none"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+          Monitored Services
+        </div>
+        <div class="kpi-val" id="kpi-services-count">2 Active</div>
+        <div class="kpi-sub">Verified multi-protocol</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-label">
+          <svg viewBox="0 0 24 24" width="14" height="14" stroke="#2563EB" stroke-width="2" fill="none"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+          Average Response
+        </div>
+        <div class="kpi-val" id="kpi-avg-latency" style="color:#2563EB;">334 ms</div>
+        <div class="kpi-sub">Global edge median</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-label">
+          <svg viewBox="0 0 24 24" width="14" height="14" stroke="#2563EB" stroke-width="2" fill="none"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+          Active Incidents
+        </div>
+        <div class="kpi-val" id="kpi-active-incidents" style="color:#059669;">0 Active</div>
+        <div class="kpi-sub">Zero degraded systems</div>
+      </div>
+    </div>
+
+    <!-- Services Component Status List -->
+    <div class="sp-card">
+      <div class="sp-card-header">
+        <div>
+          <h2 class="sp-card-title">Services & Infrastructure Components</h2>
+          <div style="font-size:12.5px; color:var(--text-dim); margin-top:2px;" id="last-updated">Updated just now</div>
+        </div>
+        <span class="badge" style="background:#F1F5F9; color:#475569; font-weight:600; font-size:12px; padding:4px 10px;">Sub-Minute Probes</span>
+      </div>
+      <div id="services-list">
+        <div style="padding: 32px; text-align: center; color: var(--text-dim);">Loading component status...</div>
+      </div>
+    </div>
+
+    <!-- Recent Incidents Section -->
+    <div class="sp-card">
+      <div class="sp-card-header">
+        <h2 class="sp-card-title">Past Incidents & Outage Timeline</h2>
+        <span class="badge" style="background:#F1F5F9; color:#475569; font-weight:600; font-size:12px; padding:4px 10px;">Last 30 Days</span>
+      </div>
+      <div id="incidents-container">
+        <div style="color: var(--text-dim); text-align: center; font-size: 14px; padding: 28px 0;">No major outages reported in the past 30 days.</div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer style="margin-top: 56px; text-align: center; font-size: 13px; color: var(--text-dim); line-height: 1.6;">
+      <div>&copy; 2026 UptimeForge High-Availability Monitoring Network. All rights reserved.</div>
+      <div style="margin-top:6px; font-size:12px;">
+        <a href="/index.html" style="color:var(--primary); text-decoration:none;">Platform Home</a> &bull; 
+        <a href="/index.html#features" style="color:var(--primary); text-decoration:none;">Features</a> &bull; 
+        <a href="/swagger-ui.html" style="color:var(--primary); text-decoration:none;">API Documentation</a>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Subscribe for Alerts Modal -->
+  <div id="subscribe-modal" class="modal-overlay">
+    <div class="modal-box">
+      <div style="padding: 20px 24px; border-bottom: 1px solid var(--border-subtle); display:flex; justify-content:space-between; align-items:center;">
+        <h3 style="margin:0; font-size:17px; font-weight:700;">Subscribe to Status Updates</h3>
+        <button id="close-subscribe-btn" style="background:none; border:none; font-size:20px; cursor:pointer; color:var(--text-dim);">&times;</button>
+      </div>
+      <form id="subscribe-form" style="padding: 24px;">
+        <p style="font-size:13.5px; color:var(--text-muted); margin-top:0; margin-bottom:18px;">
+          Receive instant notifications whenever UptimeForge components experience an outage or perform scheduled maintenance.
+        </p>
+        <div class="form-group" style="margin-bottom:18px;">
+          <label class="form-label" for="sub-email">Email Address</label>
+          <input type="email" id="sub-email" class="form-control" placeholder="name@company.com" required>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%; padding:10px; font-weight:600;">Subscribe to Instant Alerts</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="toast-container" class="toast-container"></div>
+
+  <script type="module" src="/js/public-status.js"></script>
+</body>
+</html>

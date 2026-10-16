@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="/assets/logo.png">
+  <title>Incidents — UptimeForge</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <div class="app-container">
+    <div id="sidebar-container"></div>
+
+    <div class="main-wrapper">
+      <header class="topbar">
+        <h1 class="topbar-title">Incident Management</h1>
+        <div class="topbar-actions">
+          <select id="incident-status-filter" class="form-control" style="width: 160px;">
+            <option value="">All Incidents</option>
+            <option value="OPEN" selected>Active (OPEN)</option>
+            <option value="ACKNOWLEDGED">Acknowledged</option>
+            <option value="RESOLVED">Resolved</option>
+          </select>
+          <button id="refresh-incidents-btn" class="btn btn-secondary">Refresh</button>
+        </div>
+      </header>
+
+      <main class="content-body">
+        <div class="card">
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Status</th>
+                  <th>Severity</th>
+                  <th>Monitor</th>
+                  <th>Started At</th>
+                  <th>Detected At</th>
+                  <th>Duration</th>
+                  <th>Acknowledged By</th>
+                  <th style="text-align: right;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="incidents-list">
+                <tr><td colspan="8" style="text-align:center; color:var(--text-dim); padding:36px;">Loading incidents...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Incident Details & Timeline Modal -->
+  <div id="incident-modal" class="modal-backdrop">
+    <div class="modal-content" style="max-width: 700px;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="inc-modal-title">Incident Details</h3>
+        <button class="modal-close" id="close-inc-modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="inc-summary" style="margin-bottom: 20px; padding: 14px; background: rgba(0,0,0,0.2); border-radius: var(--radius-sm);"></div>
+
+        <h4 style="font-size:14px; font-weight:700; margin-bottom:12px; text-transform:uppercase; color:var(--text-muted);">Event Timeline</h4>
+        <div id="inc-timeline" style="margin-bottom: 24px;"></div>
+
+        <h4 style="font-size:14px; font-weight:700; margin-bottom:12px; text-transform:uppercase; color:var(--text-muted);">Team Notes</h4>
+        <div id="inc-notes" style="margin-bottom: 16px;"></div>
+
+        <form id="add-note-form" style="display:flex; gap:10px;">
+          <input type="text" id="note-input" class="form-control" placeholder="Add an investigation note..." required>
+          <button type="submit" class="btn btn-secondary">Post Note</button>
+        </form>
+      </div>
+      <div class="modal-footer" id="inc-modal-actions">
+        <!-- Dynamic acknowledge / resolve buttons -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Resolve Modal -->
+  <div id="resolve-modal" class="modal-backdrop">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Resolve Incident</h3>
+        <button class="modal-close" id="close-resolve-modal">&times;</button>
+      </div>
+      <form id="resolve-form">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Root Cause & Resolution Notes *</label>
+            <textarea id="resolution-notes" class="form-control" placeholder="Explain what caused the outage and the steps taken to resolve it..." required></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="cancel-resolve-btn">Cancel</button>
+          <button type="submit" class="btn btn-primary">Mark as Resolved</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script type="module" src="/js/incidents.js"></script>
+</body>
+</html>

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="/assets/logo.png">
+  <title>Account Settings — UptimeForge</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <div class="app-container">
+    <div id="sidebar-container"></div>
+
+    <div class="main-wrapper">
+      <header class="topbar">
+        <h1 class="topbar-title">Account & Security Settings</h1>
+      </header>
+
+      <main class="content-body" style="max-width: 1400px; width: 100%; margin: 0 auto;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(460px, 1fr)); gap: 24px; align-items: start;">
+          
+          <!-- Left Column: Forms (Profile & Password) -->
+          <div style="display: flex; flex-direction: column; gap: 24px;">
+            <!-- Profile Card -->
+            <div class="card">
+              <div class="card-header" style="border-bottom: 1px solid var(--border-subtle); padding-bottom: 14px;">
+                <div>
+                  <h2 class="card-title">Profile Information</h2>
+                  <div style="font-size:12px; color:var(--text-dim); margin-top:2px;">Personal details and primary workspace identity</div>
+                </div>
+              </div>
+              <div class="card-body">
+                <form id="profile-form">
+                  <div class="form-group">
+                    <label class="form-label" for="prof-email">Email Address</label>
+                    <input type="email" id="prof-email" class="form-control" disabled style="background:#F8FAFC; color:#64748B; cursor:not-allowed;">
+                    <div class="form-hint">Email address is your primary account identifier and cannot be modified.</div>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="prof-name">Full Name *</label>
+                    <input type="text" id="prof-name" class="form-control" placeholder="Enter your full name" required>
+                  </div>
+                  <button type="submit" id="save-profile-btn" class="btn btn-primary" style="padding: 9px 20px;">Save Profile</button>
+                </form>
+              </div>
+            </div>
+
+            <!-- Change Password Card -->
+            <div class="card">
+              <div class="card-header" style="border-bottom: 1px solid var(--border-subtle); padding-bottom: 14px;">
+                <div>
+                  <h2 class="card-title">Change Password</h2>
+                  <div style="font-size:12px; color:var(--text-dim); margin-top:2px;">Update your password to keep your account protected</div>
+                </div>
+              </div>
+              <div class="card-body">
+                <form id="password-form">
+                  <div class="form-group">
+                    <label class="form-label" for="curr-password">Current Password *</label>
+                    <input type="password" id="curr-password" class="form-control" placeholder="••••••••" required>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="new-password">New Password *</label>
+                    <input type="password" id="new-password" class="form-control" placeholder="Minimum 8 characters" minlength="8" required>
+                    <div class="form-hint">Must contain at least 8 characters with a mix of letters and numbers.</div>
+                  </div>
+                  <button type="submit" id="save-pwd-btn" class="btn btn-primary" style="padding: 9px 20px;">Update Password</button>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: Security, Sessions & Preferences -->
+          <div style="display: flex; flex-direction: column; gap: 24px;">
+            <!-- Security & Account Identity Card -->
+            <div class="card">
+              <div class="card-header" style="border-bottom: 1px solid var(--border-subtle); padding-bottom: 14px;">
+                <div>
+                  <h2 class="card-title">Security & Session Status</h2>
+                  <div style="font-size:12px; color:var(--text-dim); margin-top:2px;">Authentication health and authorization role</div>
+                </div>
+              </div>
+              <div class="card-body" style="padding-top: 18px;">
+                <div style="display:flex; flex-direction:column; gap:16px;">
+                  <div style="display:flex; justify-content:space-between; align-items:center; padding-bottom:12px; border-bottom:1px solid #F1F5F9;">
+                    <div>
+                      <div style="font-weight:600; color:#0F172A; font-size:14px;">Account Role</div>
+                      <div style="font-size:12px; color:var(--text-dim);">Platform permission level</div>
+                    </div>
+                    <span id="sec-role" class="badge" style="background:#EFF6FF; color:#2563EB; font-weight:700; padding:4px 10px; border-radius:6px;">USER</span>
+                  </div>
+
+                  <div style="display:flex; justify-content:space-between; align-items:center; padding-bottom:12px; border-bottom:1px solid #F1F5F9;">
+                    <div>
+                      <div style="font-weight:600; color:#0F172A; font-size:14px;">Email Verification</div>
+                      <div style="font-size:12px; color:var(--text-dim);">Status of registered address</div>
+                    </div>
+                    <span id="sec-verified" class="badge badge-up" style="font-weight:600; padding:4px 10px;">Verified</span>
+                  </div>
+
+                  <div style="display:flex; justify-content:space-between; align-items:center; padding-bottom:12px; border-bottom:1px solid #F1F5F9;">
+                    <div>
+                      <div style="font-weight:600; color:#0F172A; font-size:14px;">Member Since</div>
+                      <div style="font-size:12px; color:var(--text-dim);">Account registration timestamp</div>
+                    </div>
+                    <span id="sec-created" style="font-size:13px; font-weight:600; color:#334155;">—</span>
+                  </div>
+
+                  <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                      <div style="font-weight:600; color:#0F172A; font-size:14px;">Two-Factor Authentication</div>
+                      <div style="font-size:12px; color:var(--text-dim);">Enforce multi-factor verification</div>
+                    </div>
+                    <span class="badge" style="background:#F1F5F9; color:#64748B; font-weight:600; padding:4px 10px; border-radius:6px;">Standard Token</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Workspace & Notification Preferences Card -->
+            <div class="card">
+              <div class="card-header" style="border-bottom: 1px solid var(--border-subtle); padding-bottom: 14px;">
+                <div>
+                  <h2 class="card-title">Alert & Dispatch Preferences</h2>
+                  <div style="font-size:12px; color:var(--text-dim); margin-top:2px;">Configured notification dispatch behaviors</div>
+                </div>
+              </div>
+              <div class="card-body">
+                <div style="display:flex; flex-direction:column; gap:16px;">
+                  <div style="display:flex; justify-content:space-between; align-items:center; padding-bottom:12px; border-bottom:1px solid #F1F5F9;">
+                    <div>
+                      <div style="font-weight:600; color:#0F172A; font-size:14px;">Instant Outage Alerts</div>
+                      <div style="font-size:12px; color:var(--text-dim);">Receive email immediately upon monitor failure</div>
+                    </div>
+                    <span class="badge badge-up" style="font-weight:600; padding:4px 10px;">Active</span>
+                  </div>
+
+                  <div style="display:flex; justify-content:space-between; align-items:center; padding-bottom:12px; border-bottom:1px solid #F1F5F9;">
+                    <div>
+                      <div style="font-weight:600; color:#0F172A; font-size:14px;">Recovery Confirmations</div>
+                      <div style="font-size:12px; color:var(--text-dim);">Notification when offline service recovers</div>
+                    </div>
+                    <span class="badge badge-up" style="font-weight:600; padding:4px 10px;">Active</span>
+                  </div>
+
+                  <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                      <div style="font-weight:600; color:#0F172A; font-size:14px;">Configured Alert Channels</div>
+                      <div style="font-size:12px; color:var(--text-dim);">Manage emails, Slack webhooks, and HTTP endpoints</div>
+                    </div>
+                    <a href="/notifications.html" class="btn btn-secondary btn-sm" style="font-size:12px; padding:6px 14px;">Manage Channels</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script type="module" src="/js/settings.js"></script>
+</body>
+</html>

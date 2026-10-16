@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="/assets/logo.png">
+  <title>Alerts & Notification Logs — UptimeForge</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <div class="app-container">
+    <div id="sidebar-container"></div>
+
+    <div class="main-wrapper">
+      <header class="topbar">
+        <h1 class="topbar-title">Alert Channels & Delivery Logs</h1>
+        <div class="topbar-actions">
+          <button id="add-channel-btn" class="btn btn-primary">+ Add Alert Channel</button>
+        </div>
+      </header>
+
+      <main class="content-body">
+        <!-- Alert Channels Section -->
+        <div class="card" style="margin-bottom: 28px;">
+          <div class="card-header">
+            <h2 class="card-title">Configured Notification Destinations</h2>
+            <div style="font-size:12px; color:var(--text-dim);">Recipients for outage and recovery alerts</div>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Channel</th>
+                  <th>Destination</th>
+                  <th>Cooldown</th>
+                  <th>On Recovery</th>
+                  <th>Status</th>
+                  <th style="text-align: right;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="channels-tbody">
+                <tr><td colspan="6" style="text-align:center; color:var(--text-dim); padding:24px;">Loading alert channels...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Notification Delivery Logs Section -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Delivery Audit Logs</h2>
+            <button id="refresh-logs-btn" class="btn btn-secondary btn-sm">Refresh Logs</button>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Status</th>
+                  <th>Event Type</th>
+                  <th>Channel</th>
+                  <th>Destination</th>
+                  <th>Attempts</th>
+                  <th>Attempted At</th>
+                  <th>Delivered At</th>
+                  <th>Error Reason</th>
+                </tr>
+              </thead>
+              <tbody id="logs-tbody">
+                <tr><td colspan="8" style="text-align:center; color:var(--text-dim); padding:24px;">Loading delivery logs...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Add Alert Channel Modal -->
+  <div id="channel-modal" class="modal-backdrop">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Add Alert Destination</h3>
+        <button class="modal-close" id="close-channel-modal">&times;</button>
+      </div>
+      <form id="channel-form">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Channel Type *</label>
+            <select id="channel-type" class="form-control">
+              <option value="EMAIL">Email Notification</option>
+              <option value="SLACK">Slack Incoming Webhook</option>
+              <option value="WEBHOOK">Custom HTTP Webhook</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" id="dest-label">Destination Email *</label>
+            <input type="text" id="destination" class="form-control" placeholder="ops@company.com" required>
+            <div class="form-hint" id="dest-hint">Enter the target email address where outage notifications should be sent.</div>
+          </div>
+
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+            <div class="form-group">
+              <label class="form-label">Failure Threshold</label>
+              <input type="number" id="failure-threshold" class="form-control" value="3" min="1" max="20">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Cooldown (seconds)</label>
+              <input type="number" id="cooldown-sec" class="form-control" value="900" min="0" max="86400">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+              <input type="checkbox" id="notify-recovery" checked>
+              <span style="font-size:13px; font-weight:600;">Send notification when service recovers (UP)</span>
+            </label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="cancel-channel-btn">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Channel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script type="module" src="/js/notifications.js"></script>
+</body>
+</html>

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="/assets/logo.png">
+  <title>Public Status Pages — UptimeForge</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <div class="app-container">
+    <div id="sidebar-container"></div>
+
+    <div class="main-wrapper">
+      <header class="topbar">
+        <h1 class="topbar-title">Public Status Pages</h1>
+        <div class="topbar-actions">
+          <button id="create-sp-btn" class="btn btn-primary">+ Create Status Page</button>
+        </div>
+      </header>
+
+      <main class="content-body">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Configured Status Pages</h2>
+            <div style="font-size:12px; color:var(--text-dim);">Public-facing availability dashboards for your users and stakeholders</div>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Title & Slug</th>
+                  <th>Published</th>
+                  <th>Monitored Services</th>
+                  <th>Public Link</th>
+                  <th style="text-align: right;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="pages-tbody">
+                <tr><td colspan="5" style="text-align:center; color:var(--text-dim); padding:24px;">Loading status pages...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Create / Edit Status Page Modal -->
+  <div id="sp-modal" class="modal-backdrop">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Create Status Page</h3>
+        <button class="modal-close" id="close-sp-modal">&times;</button>
+      </div>
+      <form id="sp-form">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Page Title *</label>
+            <input type="text" id="sp-title" class="form-control" placeholder="Acme Cloud Platform Status" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">URL Slug *</label>
+            <input type="text" id="sp-slug" class="form-control" placeholder="acme-status" pattern="^[a-z0-9-]+$" required>
+            <div class="form-hint">Lowercase letters, numbers, and hyphens only (e.g. acme-status)</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Description</label>
+            <textarea id="sp-desc" class="form-control" placeholder="Live system availability and outage reports for Acme services."></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Select Monitors to Publish</label>
+            <div id="sp-monitors-list" style="max-height: 160px; overflow-y: auto; background: var(--bg-input); padding: 10px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+              <div style="color:var(--text-dim); font-size:12px;">Loading available monitors...</div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+              <input type="checkbox" id="sp-published" checked>
+              <span style="font-size:13px; font-weight:600;">Publish page immediately</span>
+            </label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="cancel-sp-btn">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Status Page</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Announcement Modal -->
+  <div id="ann-modal" class="modal-backdrop">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Post Public Announcement</h3>
+        <button class="modal-close" id="close-ann-modal">&times;</button>
+      </div>
+      <form id="ann-form">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Announcement Title *</label>
+            <input type="text" id="ann-title" class="form-control" placeholder="Scheduled Maintenance Window" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Message Content *</label>
+            <textarea id="ann-msg" class="form-control" placeholder="We will be upgrading core database clusters between 02:00 and 03:00 UTC." required></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="cancel-ann-btn">Cancel</button>
+          <button type="submit" class="btn btn-primary">Post Announcement</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script type="module" src="/js/status-pages.js"></script>
+</body>
+</html>

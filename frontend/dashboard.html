@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="/assets/logo.png">
+  <title>Dashboard — UptimeForge</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="app-container">
+    <div id="sidebar-container"></div>
+
+    <div class="main-wrapper">
+      <header class="topbar">
+        <h1 class="topbar-title">Platform Dashboard</h1>
+        <div class="topbar-actions">
+          <button id="quick-check-btn" class="btn btn-secondary">Run Ad-hoc Probe</button>
+          <button id="create-monitor-btn" class="btn btn-primary">+ Add Monitor</button>
+        </div>
+      </header>
+
+      <main class="content-body">
+        <!-- Metrics Cards -->
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-header">
+              <span class="metric-title">Monitors Active</span>
+              <span class="metric-icon"><svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg></span>
+            </div>
+            <div class="metric-value" id="metric-total">0</div>
+            <div class="metric-sub" id="metric-breakdown">0 UP · 0 DOWN</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-header">
+              <span class="metric-title">24h Uptime</span>
+              <span class="metric-icon" style="color:#16A34A;"><svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg></span>
+            </div>
+            <div class="metric-value" id="metric-uptime">—</div>
+            <div class="metric-sub">Calculated availability</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-header">
+              <span class="metric-title">Avg Latency</span>
+              <span class="metric-icon" style="color:#2563EB;"><svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></span>
+            </div>
+            <div class="metric-value" id="metric-latency">0 ms</div>
+            <div class="metric-sub">Across all healthy checks</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-header">
+              <span class="metric-title">Active Incidents</span>
+              <span class="metric-icon" style="color:#DC2626;"><svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg></span>
+            </div>
+            <div class="metric-value" id="metric-incidents">0</div>
+            <div class="metric-sub" id="metric-incidents-sub">Needs attention</div>
+          </div>
+        </div>
+
+        <!-- Latency Chart Card -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Response Time Trend (24 Hours)</h2>
+            <div style="font-size:12px; color:var(--text-dim);">Latency in milliseconds (ms)</div>
+          </div>
+          <div class="card-body">
+            <div style="height: 260px; position: relative;">
+              <canvas id="latencyChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Two Column Grid for Incidents & Recent Failures -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 24px;">
+          <!-- Recent Incidents -->
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">Active & Recent Incidents</h2>
+              <a href="/incidents.html" style="font-size: 13px;">View All &rarr;</a>
+            </div>
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Service</th>
+                    <th>Status</th>
+                    <th>Started</th>
+                    <th>Duration</th>
+                  </tr>
+                </thead>
+                <tbody id="incidents-tbody">
+                  <tr><td colspan="4" style="text-align:center; color:var(--text-dim);">Loading incidents...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Top Monitors -->
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">Monitored Endpoints</h2>
+              <a href="/monitors.html" style="font-size: 13px;">Manage All &rarr;</a>
+            </div>
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Monitor</th>
+                    <th>Status</th>
+                    <th>24h Uptime</th>
+                    <th>Last Latency</th>
+                    <th style="text-align:right;">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="monitors-tbody">
+                  <tr><td colspan="5" style="text-align:center; color:var(--text-dim);">Loading monitors...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Failures & Diagnostic Feed -->
+        <div class="card" style="margin-top: 24px;">
+          <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <h2 class="card-title" style="display:flex; align-items:center; gap:8px;">
+                <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background-color:#DC2626;"></span>
+                Live Probe Failures & Diagnostics Stream
+              </h2>
+              <div style="font-size:12px; color:var(--text-dim); margin-top:2px;">Real-time failed checks, network errors, and non-200 responses</div>
+            </div>
+            <span class="badge" style="background:#FEE2E2; color:#B91C1C; font-weight:600;">Real-time Error Trace</span>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Timestamp</th>
+                  <th>Status Code</th>
+                  <th>Latency</th>
+                  <th>Error Type</th>
+                  <th>Diagnostic Details</th>
+                </tr>
+              </thead>
+              <tbody id="failures-tbody">
+                <tr><td colspan="5" style="text-align:center; color:var(--text-dim); padding:24px;">No failed checks recorded. All endpoints operational!</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Create Monitor Modal -->
+  <div id="create-modal" class="modal-backdrop">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Create New Health Monitor</h3>
+        <button class="modal-close" id="close-modal-btn">&times;</button>
+      </div>
+      <form id="create-monitor-form">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label" for="m-name">Monitor Name *</label>
+            <input type="text" id="m-name" class="form-control" placeholder="e.g. Production Billing API" required>
+          </div>
+
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+            <div class="form-group">
+              <label class="form-label" for="m-type">Protocol *</label>
+              <select id="m-type" class="form-control">
+                <option value="HTTPS">HTTPS</option>
+                <option value="HTTP">HTTP</option>
+                <option value="TCP">TCP Socket</option>
+              </select>
+            </div>
+            <div class="form-group" id="method-container">
+              <label class="form-label" for="m-method">HTTP Method</label>
+              <select id="m-method" class="form-control">
+                <option value="GET">GET</option>
+                <option value="POST">POST</option>
+                <option value="HEAD">HEAD</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="m-url">Target Endpoint *</label>
+            <input type="text" id="m-url" class="form-control" placeholder="https://api.example.com/health or host:port" required>
+            <div class="form-hint">Private/local loopback addresses are blocked by SSRF protection.</div>
+          </div>
+
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+            <div class="form-group">
+              <label class="form-label" for="m-interval">Check Interval (seconds)</label>
+              <input type="number" id="m-interval" class="form-control" value="60" min="10" max="86400">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="m-timeout">Timeout (ms)</label>
+              <input type="number" id="m-timeout" class="form-control" value="10000" min="1000" max="60000">
+            </div>
+          </div>
+
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+            <div class="form-group">
+              <label class="form-label" for="m-threshold">Alert Sensitivity *</label>
+              <select id="m-threshold" class="form-control">
+                <option value="1" selected>1 Failure — Instant Incident & Alert (Recommended)</option>
+                <option value="2">2 Consecutive Failures</option>
+                <option value="3">3 Consecutive Failures</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="m-status">Expected Status Codes</label>
+              <input type="text" id="m-status" class="form-control" value="200,201,204">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="cancel-modal-btn">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="save-monitor-btn">Create Monitor</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Ad-Hoc Probe Modal (Replaces browser alert/prompt) -->
+  <div id="adhoc-modal" class="modal-backdrop">
+    <div class="modal-content" style="max-width: 540px;">
+      <div class="modal-header">
+        <h3 class="modal-title" style="display:flex; align-items:center; gap:8px;">
+          <svg viewBox="0 0 24 24" width="18" height="18" stroke="var(--primary)" stroke-width="2" fill="none"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+          Ad-hoc Endpoint Health Probe
+        </h3>
+        <button class="modal-close" id="close-adhoc-btn">&times;</button>
+      </div>
+      <form id="adhoc-probe-form">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label" for="adhoc-url">Target Endpoint URL *</label>
+            <input type="text" id="adhoc-url" class="form-control" placeholder="https://api.example.com/health or host:port" required>
+            <div class="form-hint">Sends an instant probe without saving to permanent monitors.</div>
+          </div>
+          
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+            <div class="form-group">
+              <label class="form-label" for="adhoc-type">Protocol</label>
+              <select id="adhoc-type" class="form-control">
+                <option value="HTTPS">HTTPS</option>
+                <option value="HTTP">HTTP</option>
+                <option value="TCP">TCP Socket</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="adhoc-timeout">Timeout (ms)</label>
+              <input type="number" id="adhoc-timeout" class="form-control" value="10000" min="1000" max="30000">
+            </div>
+          </div>
+
+          <!-- Probe Result Display Card -->
+          <div id="adhoc-result-container" style="display:none; margin-top:16px; padding:16px; border-radius:8px; border:1px solid #E2E8F0; background:#F8FAFC;">
+            <div id="adhoc-result-header" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+              <span id="adhoc-result-badge" class="badge"></span>
+              <span id="adhoc-result-time" style="font-size:12px; font-weight:700; color:#0F172A;"></span>
+            </div>
+            <div id="adhoc-result-details" style="font-size:13px; color:#334155; line-height:1.5;"></div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="cancel-adhoc-btn">Close</button>
+          <button type="submit" class="btn btn-primary" id="run-adhoc-submit-btn">Run Probe</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script type="module" src="/js/dashboard.js"></script>
+</body>
+</html>

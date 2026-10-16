@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About the Creator & Architecture — UptimeForge</title>
+  <link rel="icon" type="image/png" href="/assets/logo.png">
+  <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-hover: #1D4ED8;
+      --bg-base: #F8FAFC;
+      --border-subtle: #E2E8F0;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --text-dim: #94A3B8;
+    }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Sticky Clean Navigation Header */
+    .landing-header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background-color: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-subtle);
+      width: 100%;
+    }
+    .landing-header-inner {
+      width: 100%;
+      padding: 0 36px;
+      height: 72px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-sizing: border-box;
+    }
+    .landing-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none !important;
+      cursor: pointer;
+    }
+    .brand-logo-img {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      object-fit: contain;
+    }
+    .brand-title {
+      font-size: 21px;
+      font-weight: 800;
+      color: #0F172A;
+      letter-spacing: -0.6px;
+    }
+    .brand-title span { color: #2563EB; }
+
+    .landing-nav {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .landing-nav a {
+      color: #475569;
+      text-decoration: none !important;
+      font-size: 14.5px;
+      font-weight: 600;
+      transition: color 0.15s ease;
+    }
+    .landing-nav a:hover,
+    .landing-nav a.active {
+      color: #2563EB;
+    }
+
+    .landing-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .btn-header-login {
+      padding: 8px 18px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #0F172A;
+      background-color: transparent;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      text-decoration: none !important;
+      transition: all 0.2s ease;
+    }
+    .btn-header-login:hover {
+      background-color: #F1F5F9;
+      border-color: #0F172A;
+    }
+    .btn-header-cta {
+      padding: 9px 20px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #FFFFFF;
+      background-color: #2563EB;
+      border: 1px solid #2563EB;
+      border-radius: 8px;
+      text-decoration: none !important;
+      transition: all 0.2s ease;
+    }
+    .btn-header-cta:hover {
+      background-color: #1D4ED8;
+    }
+
+    /* Hero Section */
+    .about-hero {
+      background-color: #FFFFFF;
+      border-bottom: 1px solid #E2E8F0;
+      padding: 70px 24px 60px 24px;
+      text-align: center;
+      background-image: radial-gradient(#CBD5E1 1px, transparent 1px);
+      background-size: 32px 32px;
+    }
+    .about-hero-inner {
+      max-width: 860px;
+      margin: 0 auto;
+    }
+    .section-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      background: #EFF6FF;
+      border: 1px solid #BFDBFE;
+      border-radius: 9999px;
+      color: #1D4ED8;
+      font-size: 12.5px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+    .about-title {
+      font-size: 46px;
+      font-weight: 800;
+      color: #0F172A;
+      letter-spacing: -1.5px;
+      line-height: 1.18;
+      margin: 0 0 16px 0;
+    }
+    .about-subtitle {
+      font-size: 18px;
+      color: #475569;
+      line-height: 1.6;
+      margin: 0 auto;
+      max-width: 680px;
+    }
+
+    /* Creator Profile Card */
+    .profile-card-container {
+      max-width: 1100px;
+      margin: -40px auto 60px auto;
+      padding: 0 24px;
+      position: relative;
+      z-index: 10;
+    }
+    .profile-card {
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      border-radius: 20px;
+      box-shadow: 0 20px 45px -10px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(15, 23, 42, 0.02);
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 0;
+    }
+
+    .profile-sidebar {
+      background: linear-gradient(180deg, #F8FAFC 0%, #F1F5F9 100%);
+      border-right: 1px solid #E2E8F0;
+      padding: 44px 32px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .profile-photo-wrapper {
+      position: relative;
+      width: 190px;
+      height: 190px;
+      border-radius: 22px;
+      overflow: hidden;
+      box-shadow: 0 12px 28px -6px rgba(15, 23, 42, 0.18);
+      border: 3px solid #FFFFFF;
+      margin-bottom: 22px;
+    }
+    .profile-photo {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center top;
+      display: block;
+    }
+    .profile-name {
+      font-size: 22px;
+      font-weight: 800;
+      color: #0F172A;
+      margin-bottom: 6px;
+      letter-spacing: -0.4px;
+    }
+    .profile-role {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #2563EB;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: 12px;
+    }
+    .profile-branch-badge {
+      display: inline-block;
+      background: #DCFCE7;
+      border: 1px solid #86EFAC;
+      color: #15803D;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      margin-bottom: 24px;
+    }
+
+    .profile-links {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
+    }
+    .profile-link-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 11px 16px;
+      border-radius: 10px;
+      font-size: 13.5px;
+      font-weight: 600;
+      text-decoration: none !important;
+      transition: all 0.2s ease;
+    }
+    .link-primary,
+    .link-primary:link,
+    .link-primary:visited {
+      background: #2563EB !important;
+      color: #FFFFFF !important;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+    }
+    .link-primary:hover,
+    .link-primary:focus,
+    .link-primary:active {
+      background: #1D4ED8 !important;
+      color: #FFFFFF !important;
+      box-shadow: 0 6px 18px rgba(37, 99, 235, 0.38);
+      transform: translateY(-1px);
+      text-decoration: none !important;
+    }
+    .link-primary *,
+    .link-primary:hover * {
+      color: #FFFFFF !important;
+    }
+    .link-secondary,
+    .link-secondary:link,
+    .link-secondary:visited {
+      background: #FFFFFF !important;
+      color: #334155 !important;
+      border: 1px solid #CBD5E1 !important;
+    }
+    .link-secondary:hover,
+    .link-secondary:focus,
+    .link-secondary:active {
+      background: #F8FAFC !important;
+      color: #0F172A !important;
+      border-color: #94A3B8 !important;
+      text-decoration: none !important;
+    }
+
+    .profile-content {
+      padding: 44px 48px;
+    }
+    .profile-content h3 {
+      font-size: 24px;
+      font-weight: 800;
+      color: #0F172A;
+      margin: 0 0 16px 0;
+      letter-spacing: -0.5px;
+    }
+    .profile-content p {
+      font-size: 15.5px;
+      line-height: 1.7;
+      color: #475569;
+      margin: 0 0 20px 0;
+    }
+
+    /* Highlights Grid */
+    .highlights-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
+      margin: 32px 0;
+    }
+    .highlight-card {
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 12px;
+      padding: 22px;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+      transition: all 0.2s ease;
+    }
+    .highlight-card:hover {
+      border-color: #2563EB;
+      box-shadow: 0 6px 16px -4px rgba(37, 99, 235, 0.12);
+      transform: translateY(-2px);
+    }
+    .highlight-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: #EFF6FF;
+      border: 1px solid #BFDBFE;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #2563EB;
+      margin-bottom: 14px;
+      transition: all 0.2s ease;
+    }
+    .highlight-card:hover .highlight-icon {
+      background: #2563EB;
+      color: #FFFFFF;
+      border-color: #2563EB;
+    }
+    .highlight-title {
+      font-size: 15.5px;
+      font-weight: 700;
+      color: #0F172A;
+      margin-bottom: 6px;
+    }
+    .highlight-text {
+      font-size: 13.5px;
+      color: #64748B;
+      line-height: 1.55;
+      margin: 0;
+    }
+
+    /* Tech Stack Strip */
+    .tech-stack-section {
+      max-width: 1100px;
+      margin: 0 auto 80px auto;
+      padding: 0 24px;
+    }
+    .tech-badges-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+    .tech-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      border-radius: 9999px;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: #334155;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    }
+    .tech-badge-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #2563EB;
+    }
+
+    /* Footer */
+    .site-footer {
+      border-top: 1px solid #E2E8F0;
+      padding: 36px 0;
+      background-color: #FFFFFF;
+      width: 100%;
+    }
+    .footer-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+      color: #64748B;
+    }
+
+    @media (max-width: 860px) {
+      .profile-card { grid-template-columns: 1fr; }
+      .profile-sidebar { border-right: none; border-bottom: 1px solid #E2E8F0; }
+      .profile-content { padding: 32px 24px; }
+      .highlights-grid { grid-template-columns: 1fr; }
+      .landing-nav { display: none; }
+      .footer-inner { flex-direction: column; gap: 16px; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky Clean Navigation Header -->
+  <header class="landing-header">
+    <div class="landing-header-inner">
+      <a href="/index.html" class="landing-brand">
+        <img src="/assets/logo.png" alt="UptimeForge Logo" class="brand-logo-img">
+        <div class="brand-title">Uptime<span>Forge</span></div>
+      </a>
+      <nav class="landing-nav">
+        <a href="/index.html#features">Features</a>
+        <a href="/index.html#probes">Global Probes</a>
+        <a href="/public-status.html?slug=system-status">Live Status</a>
+        <a href="/about.html" class="active">About Creator</a>
+        <a href="/swagger-ui.html">API Docs</a>
+      </nav>
+      <div class="landing-header-actions">
+        <a href="/login.html" class="btn-header-login">Sign In</a>
+        <a href="/register.html" class="btn-header-cta">Start Monitoring &rarr;</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- HERO SECTION -->
+    <section class="about-hero">
+      <div class="about-hero-inner">
+        <div class="section-tag">Engineering &amp; Architectural Journey</div>
+        <h1 class="about-title">Meet the Creator Behind UptimeForge</h1>
+        <p class="about-subtitle">
+          Designed and engineered from first principles by <strong>Deepak Gowri Shankar Enduri</strong> — Computer Science and Engineering (CSE).
+        </p>
+      </div>
+    </section>
+
+    <!-- PROFILE SHOWCASE CARD -->
+    <div class="profile-card-container">
+      <div class="profile-card">
+        <!-- Left: Photo & Meta -->
+        <div class="profile-sidebar">
+          <div class="profile-photo-wrapper">
+            <img src="/assets/deepak.jpg" alt="Deepak Gowri Shankar Enduri" class="profile-photo">
+          </div>
+          <div class="profile-name">Deepak Gowri Shankar Enduri</div>
+          <div class="profile-role">Creator &amp; Lead Architect</div>
+          <div class="profile-branch-badge">B.Tech &bull; Computer Science (CSE)</div>
+
+          <div class="profile-links">
+            <a href="https://deepakgowrishankar7.github.io/Portfolio/" target="_blank" rel="noopener noreferrer" class="profile-link-btn link-primary">
+              <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+              View Personal Portfolio &rarr;
+            </a>
+            <a href="https://github.com/deepakgowrishankar7" target="_blank" rel="noopener noreferrer" class="profile-link-btn link-secondary">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+              GitHub Profile
+            </a>
+            <a href="mailto:deepakgowrishankar7@gmail.com" class="profile-link-btn link-secondary">
+              <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+              Direct Email
+            </a>
+          </div>
+        </div>
+
+        <!-- Right: The Engineering Story -->
+        <div class="profile-content">
+          <h3>The Vision: Why I Built UptimeForge</h3>
+          <p>
+            During my journey as a <strong>Computer Science &amp; Engineering (CSE)</strong> student, I encountered a common frustration in application monitoring: traditional tools felt unnecessarily complex and bloated, while basic uptime ping scripts offered little visibility beyond whether a service responded with HTTP 200.
+          </p>
+          <p>
+            That inspired me to build <strong>UptimeForge</strong> — a developer-first uptime monitoring and incident defense platform designed to make application reliability intuitive, precise, and transparent.
+          </p>
+          <p>
+            Built from first principles with <strong>Java 25</strong> and <strong>Spring Boot 3</strong>, UptimeForge unifies automated multi-protocol health checks, sub-second latency analytics, tenant-aware data access, cryptographic OTP verification, and instant incident dispatches into a cohesive SRE workspace.
+          </p>
+
+          <!-- Highlights Grid with Clean Enterprise SVGs -->
+          <div class="highlights-grid">
+            <div class="highlight-card">
+              <div class="highlight-icon">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+                  <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+                  <line x1="6" y1="6" x2="6.01" y2="6"></line>
+                  <line x1="6" y1="18" x2="6.01" y2="18"></line>
+                </svg>
+              </div>
+              <div class="highlight-title">Java 25 &amp; Spring Boot Engine</div>
+              <p class="highlight-text">A high-performance backend coordinating asynchronous health checks, processing telemetry streams, and exposing secure RESTful APIs.</p>
+            </div>
+
+            <div class="highlight-card">
+              <div class="highlight-icon">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                  <polyline points="9 12 11 14 15 10"></polyline>
+                </svg>
+              </div>
+              <div class="highlight-title">Tenant-Aware Data Isolation</div>
+              <p class="highlight-text">Strict account boundaries ensure telemetry is fully scoped to each organization, with clean dashboards and accurate empty states for new teams.</p>
+            </div>
+
+            <div class="highlight-card">
+              <div class="highlight-icon">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                  <polyline points="22,6 12,13 2,6"></polyline>
+                </svg>
+              </div>
+              <div class="highlight-title">Brevo-Powered Email Notifications</div>
+              <p class="highlight-text">Six-digit cryptographic OTP verification and executive HTML incident dispatches support account security and timely outage alerts.</p>
+            </div>
+
+            <div class="highlight-card">
+              <div class="highlight-icon">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="18" y1="20" x2="18" y2="10"></line>
+                  <line x1="12" y1="20" x2="12" y2="4"></line>
+                  <line x1="6" y1="20" x2="6" y2="14"></line>
+                </svg>
+              </div>
+              <div class="highlight-title">Responsive Monitoring Dashboard</div>
+              <p class="highlight-text">A streamlined single-page interface with client-side navigation, persistent UI state, and Chart.js analytics for evaluating uptime and latency percentiles.</p>
+            </div>
+          </div>
+
+          <!-- Professional Concluding Callout -->
+          <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-left:4px solid #2563EB; border-radius:0 12px 12px 0; padding:18px 22px; margin-top:28px;">
+            <div style="font-weight:700; color:#0F172A; font-size:14.5px; margin-bottom:4px; letter-spacing:-0.2px;">
+              Built for Developers. Designed for Reliability.
+            </div>
+            <div style="font-size:13.5px; color:#475569; line-height:1.6;">
+              Whether you are monitoring a personal API, an e-commerce backend, or a collection of microservices, UptimeForge aims to give you a clearer view of service health and a faster path from detection to investigation.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TECH STACK SECTION -->
+    <section class="tech-stack-section">
+      <h2 style="font-size:24px; font-weight:800; color:#0F172A; margin-bottom:8px; letter-spacing:-0.5px;">Core Engineering Stack &amp; Technologies</h2>
+      <p style="color:#64748B; font-size:15px; margin:0;">UptimeForge is engineered with industry-standard frameworks and high-performance tools:</p>
+
+      <div class="tech-badges-wrap">
+        <span class="tech-badge"><span class="tech-badge-dot"></span> Java 25 (OpenJDK)</span>
+        <span class="tech-badge"><span class="tech-badge-dot"></span> Spring Boot 3.3</span>
+        <span class="tech-badge"><span class="tech-badge-dot"></span> Spring Security &amp; JWT</span>
+        <span class="tech-badge"><span class="tech-badge-dot"></span> Hibernate ORM 6 &amp; JPA</span>
+        <span class="tech-badge"><span class="tech-badge-dot"></span> MySQL 8.0 &amp; HikariCP</span>
+        <span class="tech-badge"><span class="tech-badge-dot"></span> Redis &amp; Redisson Distributed Locks</span>
+        <span class="tech-badge"><span class="tech-badge-dot"></span> Brevo Cloud SMTP Relay</span>
+        <span class="tech-badge"><span class="tech-badge-dot"></span> Chart.js Analytics</span>
+        <span class="tech-badge"><span class="tech-badge-dot"></span> Flyway Database Migrations</span>
+        <span class="tech-badge"><span class="tech-badge-dot"></span> OpenAPI &amp; Swagger 3.0</span>
+        <span class="tech-badge"><span class="tech-badge-dot"></span> Vanilla ES6 Modules (No Bloat)</span>
+        <span class="tech-badge"><span class="tech-badge-dot"></span> Apache Maven</span>
+      </div>
+    </section>
+  </main>
+
+  <!-- CLEAN SITE FOOTER -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <img src="/assets/logo.png" alt="UptimeForge" style="width:28px; height:28px; object-fit:contain; border-radius:6px;">
+        <div style="font-weight:800; color:#0F172A;">UptimeForge &copy; 2026</div>
+      </div>
+      <div style="display:flex; gap:24px; flex-wrap:wrap;">
+        <a href="/index.html" style="color:#64748B; text-decoration:none;">Home</a>
+        <a href="/about.html" style="color:#2563EB; font-weight:700; text-decoration:none;">About Creator</a>
+        <a href="/public-status.html?slug=system-status" style="color:#64748B; text-decoration:none;">System Health</a>
+        <a href="/swagger-ui.html" style="color:#64748B; text-decoration:none;">API Docs</a>
+        <a href="/login.html" style="color:#64748B; text-decoration:none;">Sign In</a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

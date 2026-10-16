@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="/assets/logo.png">
+  <title>Monitors — UptimeForge</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <div class="app-container">
+    <div id="sidebar-container"></div>
+
+    <div class="main-wrapper">
+      <header class="topbar">
+        <h1 class="topbar-title">Monitored Endpoints</h1>
+        <div class="topbar-actions">
+          <button id="add-monitor-btn" class="btn btn-primary">+ New Monitor</button>
+        </div>
+      </header>
+
+      <main class="content-body">
+        <!-- Controls Bar -->
+        <div class="card" style="margin-bottom: 20px;">
+          <div class="card-body" style="padding: 16px 20px;">
+            <div style="display: flex; gap: 16px; flex-wrap: wrap; align-items: center; justify-content: space-between;">
+              <div style="display: flex; gap: 12px; flex: 1; min-width: 280px;">
+                <input type="text" id="search-input" class="form-control" placeholder="Search by name or URL..." style="max-width: 360px;">
+                <select id="status-filter" class="form-control" style="width: 140px;">
+                  <option value="">All Statuses</option>
+                  <option value="UP">UP</option>
+                  <option value="DOWN">DOWN</option>
+                  <option value="DEGRADED">DEGRADED</option>
+                  <option value="PAUSED">PAUSED</option>
+                </select>
+              </div>
+              <div style="display: flex; gap: 10px;">
+                <button id="refresh-btn" class="btn btn-secondary btn-sm">Refresh</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Monitors List Table -->
+        <div class="card">
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Status</th>
+                  <th>Name & URL</th>
+                  <th>Type</th>
+                  <th>Interval</th>
+                  <th>Last Latency</th>
+                  <th>24h Uptime</th>
+                  <th>Last Check</th>
+                  <th style="text-align: right;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="monitors-list">
+                <tr><td colspan="8" style="text-align:center; color:var(--text-dim); padding: 32px;">Loading monitors...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Create Monitor Modal -->
+  <div id="create-modal" class="modal-backdrop">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Create Health Monitor</h3>
+        <button class="modal-close" id="close-modal">&times;</button>
+      </div>
+      <form id="create-form">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Monitor Name *</label>
+            <input type="text" id="name" class="form-control" placeholder="Production API" required>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="form-group">
+              <label class="form-label">Type</label>
+              <select id="type" class="form-control">
+                <option value="HTTPS">HTTPS</option>
+                <option value="HTTP">HTTP</option>
+                <option value="TCP">TCP</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Method</label>
+              <select id="httpMethod" class="form-control">
+                <option value="GET">GET</option>
+                <option value="POST">POST</option>
+                <option value="HEAD">HEAD</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Target URL / Host:Port *</label>
+            <input type="text" id="url" class="form-control" placeholder="https://api.github.com" required>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="form-group">
+              <label class="form-label">Interval (seconds)</label>
+              <input type="number" id="intervalSeconds" class="form-control" value="60" min="10" max="86400">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Timeout (ms)</label>
+              <input type="number" id="timeoutMs" class="form-control" value="10000" min="1000" max="60000">
+            </div>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="form-group">
+              <label class="form-label">Alert Sensitivity *</label>
+              <select id="failureThreshold" class="form-control">
+                <option value="1" selected>1 Failure — Instant Alert (Immediate)</option>
+                <option value="2">2 Consecutive Failures</option>
+                <option value="3">3 Consecutive Failures</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Expected Status Codes</label>
+              <input type="text" id="expectedStatusCodes" class="form-control" value="200,201,204">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Keyword Verification (Optional)</label>
+            <input type="text" id="expectedText" class="form-control" placeholder="e.g. status: ok">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="cancel-btn">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="save-btn">Save Monitor</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script type="module" src="/js/monitors.js"></script>
+</body>
+</html>

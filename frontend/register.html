@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Account — UptimeForge</title>
+  <link rel="icon" type="image/png" href="/assets/logo.png">
+  <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    /* Stiff, Non-Scrolling Full-Height Viewport */
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden; /* Prevent page scrolling on desktop */
+    }
+
+    .split-layout {
+      height: 100vh;
+      max-height: 100vh;
+      display: flex;
+      width: 100%;
+      background-color: var(--bg-canvas);
+      overflow: hidden;
+    }
+
+    /* Left Side: Brand Showcase Panel */
+    .showcase-side {
+      flex: 1.1;
+      background: linear-gradient(145deg, #0B1120 0%, #0F172A 50%, #1E293B 100%);
+      color: #FFFFFF;
+      padding: 30px 48px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+      border-right: 1px solid rgba(255, 255, 255, 0.08);
+      height: 100%;
+      box-sizing: border-box;
+    }
+
+    .showcase-glow {
+      position: absolute;
+      top: -120px;
+      right: -80px;
+      width: 450px;
+      height: 450px;
+      background: radial-gradient(circle, rgba(37, 99, 235, 0.18) 0%, transparent 70%);
+      filter: blur(60px);
+      pointer-events: none;
+    }
+
+    .showcase-glow-bottom {
+      position: absolute;
+      bottom: -100px;
+      left: -80px;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+      filter: blur(60px);
+      pointer-events: none;
+    }
+
+    .showcase-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      position: relative;
+      z-index: 1;
+      text-decoration: none;
+    }
+    .showcase-brand .brand-title {
+      color: #FFFFFF;
+      font-size: 21px;
+      font-weight: 800;
+      letter-spacing: -0.4px;
+    }
+    .showcase-brand .brand-title span {
+      color: #60A5FA;
+    }
+
+    .showcase-body {
+      position: relative;
+      z-index: 1;
+      margin: auto 0;
+      max-width: 520px;
+    }
+
+    .showcase-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      background: rgba(37, 99, 235, 0.18);
+      border: 1px solid rgba(96, 165, 250, 0.3);
+      border-radius: var(--radius-full);
+      color: #93C5FD;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .showcase-title {
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: -0.7px;
+      line-height: 1.24;
+      color: #FFFFFF;
+      margin: 0 0 10px 0;
+    }
+
+    .showcase-title span {
+      background: linear-gradient(135deg, #60A5FA 0%, #818CF8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .showcase-subtitle {
+      font-size: 13.5px;
+      color: #94A3B8;
+      line-height: 1.5;
+      margin: 0 0 18px 0;
+    }
+
+    /* Compact Key Features List */
+    .features-list {
+      display: flex;
+      flex-direction: column;
+      gap: 11px;
+      margin-bottom: 20px;
+    }
+
+    .feature-item {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .feature-item-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: #60A5FA;
+    }
+
+    .feature-item-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .feature-item-text h4 {
+      font-size: 13px;
+      font-weight: 700;
+      color: #F8FAFC;
+      margin: 0;
+    }
+
+    .feature-item-text p {
+      font-size: 11.5px;
+      color: #94A3B8;
+      margin: 1px 0 0 0;
+      line-height: 1.35;
+    }
+
+    /* Metric Bar in Showcase */
+    .showcase-metrics-bar {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      padding: 12px 16px;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      backdrop-filter: blur(12px);
+    }
+
+    .showcase-metric-stat {
+      font-size: 17px;
+      font-weight: 800;
+      color: #FFFFFF;
+      letter-spacing: -0.4px;
+    }
+
+    .showcase-metric-label {
+      font-size: 10px;
+      font-weight: 600;
+      color: #64748B;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 1px;
+    }
+
+    .showcase-footer {
+      font-size: 11.5px;
+      color: #64748B;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Right Side: Clean Registration Form Panel */
+    .form-side {
+      flex: 1;
+      background-color: var(--bg-surface);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 30px 48px;
+      position: relative;
+      height: 100%;
+      box-sizing: border-box;
+      overflow: hidden;
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    .form-top-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+    }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-decoration: none !important;
+      padding: 6px 12px;
+      border-radius: var(--radius-sm);
+      background-color: var(--bg-canvas);
+      border: 1px solid var(--border-subtle);
+      transition: all var(--transition-fast);
+    }
+
+    .back-btn:hover {
+      color: var(--brand-primary);
+      background-color: var(--bg-surface-hover);
+      border-color: var(--border-medium);
+      transform: translateX(-2px);
+    }
+
+    .back-arrow {
+      transition: transform var(--transition-fast);
+    }
+    .back-btn:hover .back-arrow {
+      transform: translateX(-2px);
+    }
+
+    .form-container {
+      max-width: 400px;
+      width: 100%;
+      margin: auto auto;
+    }
+
+    .form-header {
+      margin-bottom: 18px;
+    }
+
+    .form-header h2 {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.6px;
+      color: var(--brand-primary);
+      margin: 0 0 5px 0;
+    }
+
+    .form-header p {
+      font-size: 13.5px;
+      color: var(--text-secondary);
+      margin: 0;
+    }
+
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    .form-label {
+      font-size: 12.5px;
+      font-weight: 600;
+      margin-bottom: 5px;
+      display: block;
+      color: #0F172A;
+    }
+
+    .form-control {
+      padding: 9px 13px;
+      font-size: 13.5px;
+      border-radius: 8px;
+    }
+
+    .form-hint {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* Password Input Wrapper with Toggle */
+    .password-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .password-toggle-btn {
+      position: absolute;
+      right: 12px;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 15px;
+      padding: 4px;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      transition: color var(--transition-fast);
+    }
+    .password-toggle-btn:hover {
+      color: var(--brand-primary);
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: 10px;
+      font-size: 14px;
+      font-weight: 700;
+      margin-top: 6px;
+      border-radius: 8px;
+    }
+
+    .otp-input-field {
+      font-family: var(--font-mono, monospace);
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: 12px;
+      text-align: center;
+      padding: 10px 14px;
+      color: #2563EB;
+      background: #F8FAFC;
+      border: 2px solid #CBD5E1;
+      border-radius: 10px;
+      transition: all 0.2s ease;
+      box-sizing: border-box;
+      width: 100%;
+    }
+    .otp-input-field:focus {
+      border-color: #2563EB;
+      background: #FFFFFF;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+      outline: none;
+    }
+    .otp-sent-banner {
+      background: #EFF6FF;
+      border: 1px solid #BFDBFE;
+      border-radius: 8px;
+      padding: 9px 12px;
+      font-size: 12px;
+      color: #1E40AF;
+      margin-bottom: 14px;
+      line-height: 1.45;
+    }
+
+    .form-footer-link {
+      text-align: center;
+      margin-top: 14px;
+      font-size: 11.5px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .form-bottom-security {
+      font-size: 11px;
+      color: var(--text-dim);
+      text-align: center;
+    }
+
+    /* Responsive for Tablet and Mobile: Allow Normal Scrolling on Small Screens */
+    @media (max-width: 992px) {
+      html, body {
+        height: auto;
+        overflow: auto;
+      }
+      .split-layout {
+        height: auto;
+        max-height: none;
+        overflow: visible;
+        flex-direction: column;
+      }
+      .showcase-side {
+        height: auto;
+        padding: 36px 24px;
+      }
+      .form-side {
+        height: auto;
+        padding: 36px 24px;
+        overflow: visible;
+      }
+      .form-container {
+        margin: 24px auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="split-layout">
+    
+    <!-- LEFT SIDE: Showcase Panel with Product Details & Metrics -->
+    <section class="showcase-side">
+      <div class="showcase-glow"></div>
+      <div class="showcase-glow-bottom"></div>
+
+      <!-- Brand Logo -->
+      <a href="/index.html" class="showcase-brand">
+        <img src="/assets/logo.png" alt="UptimeForge Logo" style="width: 38px; height: 38px; object-fit: contain; border-radius: 8px; filter: drop-shadow(0 4px 12px rgba(37,99,235,0.4));">
+        <div class="brand-title">Uptime<span>Forge</span></div>
+      </a>
+
+      <!-- Value Propositions & Feature Showcase -->
+      <div class="showcase-body">
+        <div class="showcase-badge">
+          <span>Get Started in 60 Seconds</span>
+        </div>
+
+        <h1 class="showcase-title">
+          Start Defending Your <span>Production API Uptime</span>
+        </h1>
+
+        <p class="showcase-subtitle">
+          Join engineering teams worldwide using UptimeForge to monitor availability, measure latency histograms, and alert on incidents before users notice.
+        </p>
+
+        <!-- Compact Feature List -->
+        <div class="features-list">
+          <div class="feature-item">
+            <div class="feature-item-icon"><svg viewBox="0 0 24 24" width="17" height="17" stroke="currentColor" stroke-width="2" fill="none"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></div>
+            <div class="feature-item-text">
+              <h4>Instant Monitor Setup</h4>
+              <p>Configure HTTP, HTTPS, and TCP checks in under 60 seconds.</p>
+            </div>
+          </div>
+
+          <div class="feature-item">
+            <div class="feature-item-icon"><svg viewBox="0 0 24 24" width="17" height="17" stroke="currentColor" stroke-width="2" fill="none"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg></div>
+            <div class="feature-item-text">
+              <h4>Autonomous SSRF Shield</h4>
+              <p>Strict network layer blocking RFC 1918 subnets and cloud metadata.</p>
+            </div>
+          </div>
+
+          <div class="feature-item">
+            <div class="feature-item-icon"><svg viewBox="0 0 24 24" width="17" height="17" stroke="currentColor" stroke-width="2" fill="none"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg></div>
+            <div class="feature-item-text">
+              <h4>Public Status Pages</h4>
+              <p>Real-time status pages with custom slugs and incident histories.</p>
+            </div>
+          </div>
+
+          <div class="feature-item">
+            <div class="feature-item-icon"><svg viewBox="0 0 24 24" width="17" height="17" stroke="currentColor" stroke-width="2" fill="none"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div>
+            <div class="feature-item-text">
+              <h4>Collaborative Workspaces</h4>
+              <p>Team role-based access control with Owners, Admins, and Members.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Metric Proof Bar -->
+        <div class="showcase-metrics-bar">
+          <div>
+            <div class="showcase-metric-stat" style="color:#4ADE80;">99.998%</div>
+            <div class="showcase-metric-label">Uptime Accuracy</div>
+          </div>
+          <div>
+            <div class="showcase-metric-stat" style="color:#60A5FA;">&lt; 5s</div>
+            <div class="showcase-metric-label">Alert Latency</div>
+          </div>
+          <div>
+            <div class="showcase-metric-stat" style="color:#FCD34D;">0</div>
+            <div class="showcase-metric-label">Setup Overhead</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="showcase-footer">
+        &copy; 2026 UptimeForge Platform. High-Reliability Observability Infrastructure.
+      </div>
+    </section>
+
+    <!-- RIGHT SIDE: Clean Registration Form Panel -->
+    <section class="form-side">
+      <!-- Top Navigation with Back to Index Option -->
+      <div class="form-top-nav">
+        <a href="/index.html" class="back-btn" title="Return to home page">
+          <span class="back-arrow">&larr;</span> Back to home
+        </a>
+        <div style="font-size:12.5px; color:var(--text-muted);">
+          Already registered? <a href="/login.html" style="font-weight:700; color:var(--accent-cta);">Sign in here</a>
+        </div>
+      </div>
+
+      <div class="form-container">
+        <div class="form-header">
+          <h2 id="form-heading">Create your account</h2>
+          <p id="form-subheading">Get started with free enterprise-grade API monitoring today.</p>
+        </div>
+
+        <!-- STEP 1: Account Details Form -->
+        <form id="register-form">
+          <div class="form-group">
+            <label class="form-label" for="name">Full Name</label>
+            <input type="text" id="name" class="form-control" placeholder="Jane Doe" required autofocus autocomplete="name">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="email">Work Email Address</label>
+            <input type="email" id="email" class="form-control" placeholder="jane@company.com" required autocomplete="email">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="password">Password</label>
+            <div class="password-wrapper">
+              <input type="password" id="password" class="form-control" placeholder="At least 8 characters" minlength="8" required autocomplete="new-password" style="padding-right: 42px;">
+              <button type="button" id="toggle-password-btn" class="password-toggle-btn" title="Toggle password visibility">
+                <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+              </button>
+            </div>
+            <div class="form-hint">Must contain at least 8 characters.</div>
+          </div>
+
+          <button type="submit" id="submit-step1-btn" class="btn btn-primary btn-submit">
+            Continue with Verification &rarr;
+          </button>
+        </form>
+
+        <!-- STEP 2: 6-Digit OTP Verification Form (Brevo Email Delivery) -->
+        <form id="otp-form" style="display: none;">
+          <div class="otp-sent-banner">
+            A 6-digit code was sent to <strong id="otp-target-email"></strong> via Brevo. Enter it below to activate your account.
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="otp-input" style="text-align:center; display:block; font-weight:700;">Enter 6-Digit Verification Code</label>
+            <input type="text" id="otp-input" class="form-control otp-input-field" placeholder="••••••" maxlength="6" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" required>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; margin: 8px 0 16px 0;">
+            <button type="button" id="back-to-step1-btn" style="background:none; border:none; color:var(--text-muted); cursor:pointer; padding:0; font-weight:600;">
+              &larr; Change Details
+            </button>
+            <button type="button" id="resend-otp-btn" style="background:none; border:none; color:#2563EB; cursor:pointer; padding:0; font-weight:600;" disabled>
+              Resend (<span id="resend-countdown">45</span>s)
+            </button>
+          </div>
+
+          <button type="submit" id="verify-submit-btn" class="btn btn-primary btn-submit">
+            Verify &amp; Create Account &rarr;
+          </button>
+        </form>
+
+        <div class="form-footer-link">
+          By registering, you agree to UptimeForge's <a href="#" style="color:var(--text-secondary); text-decoration:underline;">Terms of Service</a> and <a href="#" style="color:var(--text-secondary); text-decoration:underline;">Privacy Policy</a>.
+        </div>
+      </div>
+
+      <div class="form-bottom-security">
+        UptimeForge v1.0.0 &bull; Protected by 256-bit TLS Encryption
+      </div>
+    </section>
+
+  </div>
+
+  <script type="module">
+    import { auth } from '/js/auth.js';
+    import { showToast, renderLayout, spaNavigate } from '/js/common.js';
+
+    renderLayout();
+
+    const registerForm = document.getElementById('register-form');
+    const otpForm = document.getElementById('otp-form');
+    const submitStep1Btn = document.getElementById('submit-step1-btn');
+    const verifySubmitBtn = document.getElementById('verify-submit-btn');
+    const passwordInput = document.getElementById('password');
+    const togglePasswordBtn = document.getElementById('toggle-password-btn');
+    const resendOtpBtn = document.getElementById('resend-otp-btn');
+    const resendCountdown = document.getElementById('resend-countdown');
+    const backToStep1Btn = document.getElementById('back-to-step1-btn');
+    const formHeading = document.getElementById('form-heading');
+    const formSubheading = document.getElementById('form-subheading');
+    const otpTargetEmail = document.getElementById('otp-target-email');
+    const otpInput = document.getElementById('otp-input');
+
+    let cachedName = '';
+    let cachedEmail = '';
+    let cachedPassword = '';
+    let countdownInterval = null;
+
+    function startResendTimer() {
+      let secondsLeft = 45;
+      resendOtpBtn.disabled = true;
+      resendOtpBtn.innerHTML = `Resend (<span id="resend-countdown">${secondsLeft}</span>s)`;
+      if (countdownInterval) clearInterval(countdownInterval);
+
+      countdownInterval = setInterval(() => {
+        secondsLeft--;
+        const counterEl = document.getElementById('resend-countdown');
+        if (counterEl) counterEl.innerText = secondsLeft;
+
+        if (secondsLeft <= 0) {
+          clearInterval(countdownInterval);
+          resendOtpBtn.disabled = false;
+          resendOtpBtn.innerText = 'Resend Code';
+        }
+      }, 1000);
+    }
+
+    // Toggle Password Visibility
+    togglePasswordBtn.addEventListener('click', () => {
+      const isPassword = passwordInput.getAttribute('type') === 'password';
+      passwordInput.setAttribute('type', isPassword ? 'text' : 'password');
+      togglePasswordBtn.style.opacity = isPassword ? '0.5' : '1';
+    });
+
+    // Step 1: Send OTP via Brevo
+    registerForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      cachedName = document.getElementById('name').value.trim();
+      cachedEmail = document.getElementById('email').value.trim();
+      cachedPassword = passwordInput.value;
+
+      submitStep1Btn.disabled = true;
+      submitStep1Btn.innerText = 'Sending verification code...';
+
+      try {
+        await auth.sendRegistrationOtp(cachedEmail, cachedName);
+        showToast(`Verification code sent to ${cachedEmail}`, 'success');
+
+        // Smoothly transition to Step 2
+        registerForm.style.display = 'none';
+        otpForm.style.display = 'block';
+        otpTargetEmail.innerText = cachedEmail;
+        formHeading.innerText = 'Check your email';
+        formSubheading.innerText = 'Enter the 6-digit code sent to your inbox via Brevo.';
+        otpInput.value = '';
+        otpInput.focus();
+
+        startResendTimer();
+      } catch (err) {
+        showToast(err.message || 'Failed to send verification code', 'error');
+      } finally {
+        submitStep1Btn.disabled = false;
+        submitStep1Btn.innerText = 'Continue with Verification →';
+      }
+    });
+
+    // Resend OTP
+    resendOtpBtn.addEventListener('click', async () => {
+      resendOtpBtn.disabled = true;
+      resendOtpBtn.innerText = 'Resending code...';
+      try {
+        await auth.sendRegistrationOtp(cachedEmail, cachedName);
+        showToast('New verification code dispatched to your email!', 'success');
+        startResendTimer();
+      } catch (err) {
+        showToast(err.message || 'Failed to resend code', 'error');
+        resendOtpBtn.disabled = false;
+        resendOtpBtn.innerText = 'Resend Code';
+      }
+    });
+
+    // Back to Step 1 (allow correcting typo in email)
+    backToStep1Btn.addEventListener('click', () => {
+      otpForm.style.display = 'none';
+      registerForm.style.display = 'block';
+      formHeading.innerText = 'Create your account';
+      formSubheading.innerText = 'Get started with free enterprise-grade API monitoring today.';
+      if (countdownInterval) clearInterval(countdownInterval);
+    });
+
+    // Step 2: Verify OTP & Complete Registration
+    otpForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const otp = otpInput.value.trim();
+      if (!otp || otp.length !== 6) {
+        showToast('Please enter the full 6-digit code', 'error');
+        otpInput.focus();
+        return;
+      }
+
+      verifySubmitBtn.disabled = true;
+      verifySubmitBtn.innerText = 'Verifying & Creating Account...';
+
+      try {
+        await auth.register(cachedName, cachedEmail, cachedPassword, otp);
+        showToast('Email verified! Account created successfully.', 'success');
+        setTimeout(() => spaNavigate('/dashboard.html'), 400);
+      } catch (err) {
+        showToast(err.message || 'Verification failed. Please check your code.', 'error');
+        verifySubmitBtn.disabled = false;
+        verifySubmitBtn.innerText = 'Verify & Create Account →';
+        otpInput.focus();
+        otpInput.select();
+      }
+    });
+  </script>
+</body>
+</html>
