@@ -25,6 +25,18 @@ public class EmailService {
     @Value("${app.mail.from:deepakgowrishankar7@gmail.com}")
     private String fromEmail;
 
+    @Value("${spring.mail.username:${SMTP_USER:be6987001@smtp-brevo.com}}")
+    private String smtpUser;
+
+    @Value("${spring.mail.password:${SMTP_PASS:}}")
+    private String smtpPass;
+
+    @Value("${spring.mail.host:${SMTP_HOST:smtp-relay.brevo.com}}")
+    private String smtpHost;
+
+    @Value("${spring.mail.port:${SMTP_PORT:587}}")
+    private int smtpPort;
+
     /**
      * Dispatches a 6-digit Registration Verification Code via Brevo SMTP
      */
@@ -80,26 +92,79 @@ public class EmailService {
     }
 
     private void sendHtmlEmail(String toEmail, String subject, String htmlContent, String otpForLog) {
-        if (mailSender == null) {
-            log.warn("[EMAIL MOCK - NO SENDER] To: {} | Subject: {} | Code: {}", toEmail, subject, otpForLog);
-            return;
+        log.info("Initiating email dispatch to {} [Subject: {}]", toEmail, subject);
+        if (otpForLog != null) {
+            log.info("==================================================================");
+            log.info(">>> [LIVE OTP CODE FOR {}]: {} <<<", toEmail, otpForLog);
+            log.info("==================================================================");
         }
 
-        try {
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+        boolean sent = false;
 
+        // Attempt 1: Standard configured mailSender (default port 587)
+        if (mailSender != null) {
+            try {
+                MimeMessage message = mailSender.createMimeMessage();
+                MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+                helper.setFrom(fromEmail, "UptimeForge Security");
+                helper.setTo(toEmail);
+                helper.setSubject(subject);
+                helper.setText(htmlContent, true);
+
+                mailSender.send(message);
+                log.info("Email successfully dispatched via Brevo (Port {}) to {} [Subject: {}]", smtpPort, toEmail, subject);
+                sent = true;
+            } catch (Exception e) {
+                log.warn("Primary dispatch (Port {}) failed to {}: {}. Attempting SSL fallback (Port 465)...", smtpPort, toEmail, e.getMessage());
+            }
+        }
+
+        // Attempt 2: Direct SMTPS SSL (Port 465) fallback if primary port was blocked or failed
+        if (!sent && smtpPass != null && !smtpPass.trim().isEmpty()) {
+            sent = sendViaSmtpsFallback(toEmail, subject, htmlContent);
+        }
+
+        if (!sent) {
+            log.error("Failed to deliver email to {}. All SMTP channels failed or unconfigured.", toEmail);
+            if (otpForLog != null) {
+                log.warn("==================================================================");
+                log.warn(">>> [FALLBACK - VERIFY USING THIS OTP CODE FOR {}]: {} <<<", toEmail, otpForLog);
+                log.warn("==================================================================");
+            }
+        }
+    }
+
+    private boolean sendViaSmtpsFallback(String toEmail, String subject, String htmlContent) {
+        try {
+            org.springframework.mail.javamail.JavaMailSenderImpl sslSender = new org.springframework.mail.javamail.JavaMailSenderImpl();
+            sslSender.setHost(smtpHost != null && !smtpHost.trim().isEmpty() ? smtpHost.trim() : "smtp-relay.brevo.com");
+            sslSender.setPort(465);
+            sslSender.setUsername(smtpUser);
+            sslSender.setPassword(smtpPass);
+            sslSender.setDefaultEncoding("UTF-8");
+
+            java.util.Properties props = sslSender.getJavaMailProperties();
+            props.put("mail.smtp.auth", "true");
+            props.put("mail.smtp.ssl.enable", "true");
+            props.put("mail.smtp.ssl.trust", "*");
+            props.put("mail.smtp.connectiontimeout", "8000");
+            props.put("mail.smtp.timeout", "8000");
+            props.put("mail.smtp.writetimeout", "8000");
+
+            MimeMessage message = sslSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
             helper.setFrom(fromEmail, "UptimeForge Security");
             helper.setTo(toEmail);
             helper.setSubject(subject);
             helper.setText(htmlContent, true);
 
-            mailSender.send(message);
-            log.info("Email successfully dispatched via Brevo to {} [Subject: {}]", toEmail, subject);
-        } catch (Exception e) {
-            log.error("Failed to dispatch email via Brevo to {} (Code was: {}): {}", toEmail, otpForLog, e.getMessage());
-            // Fallback: log code prominently so local verification never blocks developers
-            log.info("DEVELOPER FALLBACK - OTP for {}: {}", toEmail, otpForLog);
+            sslSender.send(message);
+            log.info("Email successfully dispatched via Brevo SMTPS (Port 465 SSL) to {} [Subject: {}]", toEmail, subject);
+            return true;
+        } catch (Exception ex) {
+            log.error("Port 465 SSL fallback dispatch also failed for {}: {}", toEmail, ex.getMessage(), ex);
+            return false;
         }
     }
 

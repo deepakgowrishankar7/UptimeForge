@@ -26,16 +26,24 @@ spring:
       password: ${REDIS_PASSWORD:}
       timeout: 2000ms
   mail:
-    host: ${SMTP_HOST:smtp-relay.brevo.com}
-    port: ${SMTP_PORT:587}
-    username: ${SMTP_USER:be6987001@smtp-brevo.com}
-    password: ${SMTP_PASS:}
+    host: ${SMTP_HOST:${SPRING_MAIL_HOST:smtp-relay.brevo.com}}
+    port: ${SMTP_PORT:${SPRING_MAIL_PORT:587}}
+    username: ${SMTP_USER:${SPRING_MAIL_USERNAME:be6987001@smtp-brevo.com}}
+    password: ${SMTP_PASS:${SPRING_MAIL_PASSWORD:}}
+    default-encoding: UTF-8
     properties:
       mail:
         smtp:
           auth: true
           starttls:
             enable: true
+            required: false
+          ssl:
+            trust: "*"
+            protocols: "TLSv1.2 TLSv1.3"
+          connectiontimeout: 8000
+          timeout: 8000
+          writetimeout: 8000
 
 management:
   endpoint:
