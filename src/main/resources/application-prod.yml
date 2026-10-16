@@ -2,8 +2,8 @@ spring:
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:uptimeforge}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true}
     driver-class-name: com.mysql.cj.jdbc.Driver
-    username: ${DB_USER:${SPRING_DATASOURCE_USERNAME:root}}
-    password: ${DB_PASSWORD:${SPRING_DATASOURCE_PASSWORD:deepak098}}
+    username: ${SPRING_DATASOURCE_USERNAME:${DB_USER:root}}
+    password: ${SPRING_DATASOURCE_PASSWORD:${DB_PASSWORD:deepak098}}
     hikari:
       maximum-pool-size: 10
       minimum-idle: 2
