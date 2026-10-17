@@ -72,7 +72,7 @@ public class AuthService {
      * Issues and dispatches a 6-digit OTP verification code to the prospective registrant's email via Brevo
      */
     @Transactional
-    public void sendRegistrationOtp(SendOtpRequest request, String ipAddress) {
+    public String sendRegistrationOtp(SendOtpRequest request, String ipAddress) {
         String email = request.getEmail().toLowerCase().trim();
         if (userRepository.existsByEmail(email)) {
             throw new BadRequestException("An account with this email address already exists. Please sign in instead.");
@@ -100,6 +100,7 @@ public class AuthService {
         // Dispatch email via Brevo
         emailService.sendRegistrationOtp(email, request.getName(), otp);
         log.info("Registration OTP dispatched to {} from IP {}", email, ipAddress);
+        return otp;
     }
 
     @Transactional

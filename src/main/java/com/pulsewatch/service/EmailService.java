@@ -37,6 +37,9 @@ public class EmailService {
     @Value("${spring.mail.port:${SMTP_PORT:587}}")
     private int smtpPort;
 
+    @Value("${brevo.api.key:${BREVO_API_KEY:}}")
+    private String brevoApiKey;
+
     /**
      * Dispatches a 6-digit Registration Verification Code via Brevo SMTP
      */
@@ -101,8 +104,13 @@ public class EmailService {
 
         boolean sent = false;
 
-        // Attempt 1: Standard configured mailSender (default port 587)
-        if (mailSender != null) {
+        // Channel 1: Brevo HTTPS REST API (Port 443 - NEVER blocked by cloud firewalls or free tiers)
+        if (brevoApiKey != null && !brevoApiKey.trim().isEmpty()) {
+            sent = sendViaBrevoApi(toEmail, subject, htmlContent);
+        }
+
+        // Channel 2: Standard configured mailSender (default port 587 STARTTLS)
+        if (!sent && mailSender != null) {
             try {
                 MimeMessage message = mailSender.createMimeMessage();
                 MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
@@ -113,25 +121,63 @@ public class EmailService {
                 helper.setText(htmlContent, true);
 
                 mailSender.send(message);
-                log.info("Email successfully dispatched via Brevo (Port {}) to {} [Subject: {}]", smtpPort, toEmail, subject);
+                log.info("Email successfully dispatched via Brevo SMTP (Port {}) to {} [Subject: {}]", smtpPort, toEmail, subject);
                 sent = true;
             } catch (Exception e) {
                 log.warn("Primary dispatch (Port {}) failed to {}: {}. Attempting SSL fallback (Port 465)...", smtpPort, toEmail, e.getMessage());
             }
         }
 
-        // Attempt 2: Direct SMTPS SSL (Port 465) fallback if primary port was blocked or failed
+        // Channel 3: Direct SMTPS SSL (Port 465) fallback if primary port was blocked or failed
         if (!sent && smtpPass != null && !smtpPass.trim().isEmpty()) {
             sent = sendViaSmtpsFallback(toEmail, subject, htmlContent);
         }
 
         if (!sent) {
-            log.error("Failed to deliver email to {}. All SMTP channels failed or unconfigured.", toEmail);
+            log.warn("Notice: Real email delivery via SMTP was skipped or blocked by host network firewall. If hosted on Render free tier, SMTP ports 587/465 are restricted by Render. Use BREVO_API_KEY for HTTPS Port 443 dispatch, or use the direct verification code below.");
             if (otpForLog != null) {
                 log.warn("==================================================================");
-                log.warn(">>> [FALLBACK - VERIFY USING THIS OTP CODE FOR {}]: {} <<<", toEmail, otpForLog);
+                log.warn(">>> [CLOUD RELAY OTP CODE FOR {}]: {} <<<", toEmail, otpForLog);
                 log.warn("==================================================================");
             }
+        }
+    }
+
+    private boolean sendViaBrevoApi(String toEmail, String subject, String htmlContent) {
+        try {
+            java.net.http.HttpClient client = java.net.http.HttpClient.newBuilder()
+                    .connectTimeout(java.time.Duration.ofSeconds(8))
+                    .build();
+
+            com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+            java.util.Map<String, Object> payload = new java.util.HashMap<>();
+            payload.put("sender", java.util.Map.of("name", "UptimeForge Security", "email", fromEmail));
+            payload.put("to", java.util.List.of(java.util.Map.of("email", toEmail)));
+            payload.put("subject", subject);
+            payload.put("htmlContent", htmlContent);
+
+            String requestBody = mapper.writeValueAsString(payload);
+
+            java.net.http.HttpRequest request = java.net.http.HttpRequest.newBuilder()
+                    .uri(java.net.URI.create("https://api.brevo.com/v3/smtp/email"))
+                    .header("accept", "application/json")
+                    .header("api-key", brevoApiKey.trim())
+                    .header("content-type", "application/json")
+                    .POST(java.net.http.HttpRequest.BodyPublishers.ofString(requestBody, java.nio.charset.StandardCharsets.UTF_8))
+                    .timeout(java.time.Duration.ofSeconds(10))
+                    .build();
+
+            java.net.http.HttpResponse<String> response = client.send(request, java.net.http.HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() >= 200 && response.statusCode() < 300) {
+                log.info("Email successfully dispatched via Brevo REST API (HTTPS port 443) to {}", toEmail);
+                return true;
+            } else {
+                log.warn("Brevo REST API returned HTTP {}: {}", response.statusCode(), response.body());
+                return false;
+            }
+        } catch (Exception ex) {
+            log.warn("Brevo REST API dispatch failed for {}: {}", toEmail, ex.getMessage());
+            return false;
         }
     }
 

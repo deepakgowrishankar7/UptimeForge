@@ -18,3 +18,5 @@ services:
         value: be6987001@smtp-brevo.com
       - key: SMTP_PASS
         sync: false
+      - key: BREVO_API_KEY
+        sync: false

@@ -45,6 +45,10 @@ spring:
           timeout: 8000
           writetimeout: 8000
 
+brevo:
+  api:
+    key: ${BREVO_API_KEY:}
+
 management:
   endpoint:
     health:
