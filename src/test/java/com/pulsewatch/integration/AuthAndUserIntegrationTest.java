@@ -35,8 +35,22 @@ public class AuthAndUserIntegrationTest {
     void testFullAuthFlow() throws Exception {
         String testEmail = "testuser_" + System.currentTimeMillis() + "@pulsewatch.io";
 
-        // 1. Register
-        RegisterRequest registerReq = new RegisterRequest("Test User", testEmail, "StrongPass@123");
+        // 0. Request Registration OTP
+        com.pulsewatch.dto.SendOtpRequest otpReq = new com.pulsewatch.dto.SendOtpRequest(testEmail, "Test User");
+        MvcResult otpResult = mockMvc.perform(post("/api/v1/auth/register/send-otp")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(otpReq)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data.previewOtp").isNotEmpty())
+                .andReturn();
+
+        String otpResponseBody = otpResult.getResponse().getContentAsString();
+        com.fasterxml.jackson.databind.JsonNode otpJson = objectMapper.readTree(otpResponseBody);
+        String otpCode = otpJson.get("data").get("previewOtp").asText();
+
+        // 1. Register with OTP
+        RegisterRequest registerReq = new RegisterRequest("Test User", testEmail, "StrongPass@123", otpCode);
         MvcResult regResult = mockMvc.perform(post("/api/v1/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(registerReq)))
