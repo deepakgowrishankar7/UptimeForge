@@ -38,7 +38,7 @@ public class NotificationService {
     private final HttpClient httpClient;
     private final ObjectMapper objectMapper;
 
-    @Value("${spring.mail.username:deepakgowrishankar7@gmail.com}")
+    @Value("${app.mail.from:deepakgowrishankar7@gmail.com}")
     private String fromEmail;
 
     @Autowired(required = false)
