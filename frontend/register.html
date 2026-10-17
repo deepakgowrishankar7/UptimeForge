@@ -549,18 +549,6 @@
             A 6-digit code was sent to <strong id="otp-target-email"></strong> via Brevo. Enter it below to activate your account.
           </div>
 
-          <div id="cloud-relay-box" style="display: none; background: rgba(59, 130, 246, 0.12); border: 1px solid rgba(59, 130, 246, 0.35); border-radius: 8px; padding: 10px 14px; margin-bottom: 14px; font-size: 12px; color: #93C5FD;">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-              <span>Verification Code: <strong id="cloud-relay-code" style="color: #60A5FA; font-size: 16px; letter-spacing: 2px;"></strong></span>
-              <button type="button" id="autofill-otp-btn" style="background: #2563EB; color: #FFFFFF; border: none; border-radius: 5px; padding: 3px 10px; font-size: 11px; font-weight: 600; cursor: pointer;">
-                Auto-fill
-              </button>
-            </div>
-            <div style="font-size: 11px; color: #94A3B8; margin-top: 4px;">
-              Direct cloud verification code ready for instant activation.
-            </div>
-          </div>
-
           <div class="form-group">
             <label class="form-label" for="otp-input" style="text-align:center; display:block; font-weight:700;">Enter 6-Digit Verification Code</label>
             <input type="text" id="otp-input" class="form-control otp-input-field" placeholder="••••••" maxlength="6" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" required>
@@ -611,23 +599,11 @@
     const formSubheading = document.getElementById('form-subheading');
     const otpTargetEmail = document.getElementById('otp-target-email');
     const otpInput = document.getElementById('otp-input');
-    const cloudRelayBox = document.getElementById('cloud-relay-box');
-    const cloudRelayCode = document.getElementById('cloud-relay-code');
-    const autofillOtpBtn = document.getElementById('autofill-otp-btn');
 
     let cachedName = '';
     let cachedEmail = '';
     let cachedPassword = '';
     let countdownInterval = null;
-
-    if (autofillOtpBtn) {
-      autofillOtpBtn.addEventListener('click', () => {
-        if (cloudRelayCode && cloudRelayCode.innerText) {
-          otpInput.value = cloudRelayCode.innerText.trim();
-          otpInput.focus();
-        }
-      });
-    }
 
     function startResendTimer() {
       let secondsLeft = 45;
@@ -666,7 +642,7 @@
       submitStep1Btn.innerText = 'Sending verification code...';
 
       try {
-        const res = await auth.sendRegistrationOtp(cachedEmail, cachedName);
+        await auth.sendRegistrationOtp(cachedEmail, cachedName);
         showToast(`Verification code sent to ${cachedEmail}`, 'success');
 
         // Smoothly transition to Step 2
@@ -674,15 +650,8 @@
         otpForm.style.display = 'block';
         otpTargetEmail.innerText = cachedEmail;
         formHeading.innerText = 'Check your email';
-        formSubheading.innerText = 'Enter the 6-digit code to activate your account.';
-
-        if (res && res.previewOtp) {
-          if (cloudRelayCode) cloudRelayCode.innerText = res.previewOtp;
-          if (cloudRelayBox) cloudRelayBox.style.display = 'block';
-          otpInput.value = res.previewOtp;
-        } else {
-          otpInput.value = '';
-        }
+        formSubheading.innerText = 'Enter the 6-digit code sent to your inbox via Brevo.';
+        otpInput.value = '';
         otpInput.focus();
 
         startResendTimer();
@@ -699,13 +668,10 @@
       resendOtpBtn.disabled = true;
       resendOtpBtn.innerText = 'Resending code...';
       try {
-        const res = await auth.sendRegistrationOtp(cachedEmail, cachedName);
-        showToast('New verification code dispatched!', 'success');
-        if (res && res.previewOtp) {
-          if (cloudRelayCode) cloudRelayCode.innerText = res.previewOtp;
-          if (cloudRelayBox) cloudRelayBox.style.display = 'block';
-          otpInput.value = res.previewOtp;
-        }
+        await auth.sendRegistrationOtp(cachedEmail, cachedName);
+        showToast('New verification code dispatched to your email!', 'success');
+        otpInput.value = '';
+        otpInput.focus();
         startResendTimer();
       } catch (err) {
         showToast(err.message || 'Failed to resend code', 'error');

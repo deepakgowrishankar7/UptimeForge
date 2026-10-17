@@ -30,6 +30,9 @@ public class AuthAndUserIntegrationTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private com.pulsewatch.repository.RegistrationOtpRepository registrationOtpRepository;
+
     @Test
     @DisplayName("Complete Authentication Flow: Register -> Login -> Access Protected -> Refresh Token")
     void testFullAuthFlow() throws Exception {
@@ -37,17 +40,15 @@ public class AuthAndUserIntegrationTest {
 
         // 0. Request Registration OTP
         com.pulsewatch.dto.SendOtpRequest otpReq = new com.pulsewatch.dto.SendOtpRequest(testEmail, "Test User");
-        MvcResult otpResult = mockMvc.perform(post("/api/v1/auth/register/send-otp")
+        mockMvc.perform(post("/api/v1/auth/register/send-otp")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(otpReq)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.data.previewOtp").isNotEmpty())
-                .andReturn();
+                .andExpect(jsonPath("$.success").value(true));
 
-        String otpResponseBody = otpResult.getResponse().getContentAsString();
-        com.fasterxml.jackson.databind.JsonNode otpJson = objectMapper.readTree(otpResponseBody);
-        String otpCode = otpJson.get("data").get("previewOtp").asText();
+        String otpCode = registrationOtpRepository.findFirstByEmailAndUsedAtIsNullOrderByCreatedAtDesc(testEmail)
+                .orElseThrow()
+                .getOtpCode();
 
         // 1. Register with OTP
         RegisterRequest registerReq = new RegisterRequest("Test User", testEmail, "StrongPass@123", otpCode);

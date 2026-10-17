@@ -128,18 +128,62 @@ public class EmailService {
             }
         }
 
-        // Channel 3: Direct SMTPS SSL (Port 465) fallback if primary port was blocked or failed
-        if (!sent && smtpPass != null && !smtpPass.trim().isEmpty()) {
+        // Channel 3: Port 2525 STARTTLS (specifically designed for cloud hosts where 587/465 are filtered)
+        if (!sent && smtpPass != null && !smtpPass.trim().isEmpty() && smtpPort != 2525) {
+            sent = sendViaStarttlsPort(toEmail, subject, htmlContent, 2525);
+        }
+
+        // Channel 4: Direct SMTPS SSL (Port 465) fallback if primary port was blocked or failed
+        if (!sent && smtpPass != null && !smtpPass.trim().isEmpty() && smtpPort != 465) {
             sent = sendViaSmtpsFallback(toEmail, subject, htmlContent);
         }
 
+        // Channel 5: Port 587 STARTTLS (if not already attempted)
+        if (!sent && smtpPass != null && !smtpPass.trim().isEmpty() && smtpPort != 587) {
+            sent = sendViaStarttlsPort(toEmail, subject, htmlContent, 587);
+        }
+
         if (!sent) {
-            log.warn("Notice: Real email delivery via SMTP was skipped or blocked by host network firewall. If hosted on Render free tier, SMTP ports 587/465 are restricted by Render. Use BREVO_API_KEY for HTTPS Port 443 dispatch, or use the direct verification code below.");
+            log.error("Failed to deliver email to {}. All SMTP and API channels failed or unconfigured.", toEmail);
             if (otpForLog != null) {
                 log.warn("==================================================================");
-                log.warn(">>> [CLOUD RELAY OTP CODE FOR {}]: {} <<<", toEmail, otpForLog);
+                log.warn(">>> [LIVE OTP CODE FOR {}]: {} <<<", toEmail, otpForLog);
                 log.warn("==================================================================");
             }
+        }
+    }
+
+    private boolean sendViaStarttlsPort(String toEmail, String subject, String htmlContent, int port) {
+        try {
+            org.springframework.mail.javamail.JavaMailSenderImpl customSender = new org.springframework.mail.javamail.JavaMailSenderImpl();
+            customSender.setHost(smtpHost != null && !smtpHost.trim().isEmpty() ? smtpHost.trim() : "smtp-relay.brevo.com");
+            customSender.setPort(port);
+            customSender.setUsername(smtpUser);
+            customSender.setPassword(smtpPass);
+            customSender.setDefaultEncoding("UTF-8");
+
+            java.util.Properties props = customSender.getJavaMailProperties();
+            props.put("mail.smtp.auth", "true");
+            props.put("mail.smtp.starttls.enable", "true");
+            props.put("mail.smtp.starttls.required", "true");
+            props.put("mail.smtp.ssl.trust", "*");
+            props.put("mail.smtp.connectiontimeout", "8000");
+            props.put("mail.smtp.timeout", "8000");
+            props.put("mail.smtp.writetimeout", "8000");
+
+            MimeMessage message = customSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            helper.setFrom(fromEmail, "UptimeForge Security");
+            helper.setTo(toEmail);
+            helper.setSubject(subject);
+            helper.setText(htmlContent, true);
+
+            customSender.send(message);
+            log.info("Email successfully dispatched via Brevo SMTP (Port {}) to {} [Subject: {}]", port, toEmail, subject);
+            return true;
+        } catch (Exception ex) {
+            log.warn("Dispatch via Port {} failed for {}: {}", port, toEmail, ex.getMessage());
+            return false;
         }
     }
 

@@ -27,7 +27,7 @@ spring:
       timeout: 2000ms
   mail:
     host: ${SMTP_HOST:${SPRING_MAIL_HOST:smtp-relay.brevo.com}}
-    port: ${SMTP_PORT:${SPRING_MAIL_PORT:587}}
+    port: ${SMTP_PORT:${SPRING_MAIL_PORT:2525}}
     username: ${SMTP_USER:${SPRING_MAIL_USERNAME:be6987001@smtp-brevo.com}}
     password: ${SMTP_PASS:${SPRING_MAIL_PASSWORD:}}
     default-encoding: UTF-8

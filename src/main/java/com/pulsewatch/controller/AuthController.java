@@ -28,8 +28,8 @@ public class AuthController {
     @PostMapping("/register/send-otp")
     @Operation(summary = "Send 6-digit OTP verification code to prospective registrant's email via Brevo")
     public ResponseEntity<ApiResponse<SendOtpResponse>> sendRegistrationOtp(@Valid @RequestBody SendOtpRequest request, HttpServletRequest httpRequest) {
-        String otp = authService.sendRegistrationOtp(request, httpRequest.getRemoteAddr());
-        SendOtpResponse response = new SendOtpResponse(request.getEmail(), otp, "Verification code dispatched to " + request.getEmail());
+        authService.sendRegistrationOtp(request, httpRequest.getRemoteAddr());
+        SendOtpResponse response = new SendOtpResponse(request.getEmail(), null, "Verification code sent to " + request.getEmail());
         return ResponseEntity.ok(ApiResponse.success("Verification code sent to " + request.getEmail(), response));
     }
 
